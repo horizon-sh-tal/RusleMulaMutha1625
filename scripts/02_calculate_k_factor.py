@@ -46,7 +46,7 @@ from datetime import datetime
 
 # Import configurations
 from config import (
-    CATCHMENT_FILE, FACTORS_DIR, LOGS_DIR, FIGURES_DIR,
+    CATCHMENT_SHP, FACTORS_DIR, LOGS_DIR, FIGURES_DIR,
     GEE_SOIL, SOIL_BAND, SOIL_K_VALUES, FACTOR_RANGES,
     TARGET_RESOLUTION, TARGET_CRS, LOG_FORMAT, LOG_DATE_FORMAT
 )
@@ -120,7 +120,7 @@ def load_catchment():
     
     try:
         # Use Path for portability
-        catchment_path = BASE_DIR / CATCHMENT_FILE
+        catchment_path = BASE_DIR / CATCHMENT_SHP
         
         if not catchment_path.exists():
             logger.error(f"❌ Catchment file not found: {catchment_path}")
