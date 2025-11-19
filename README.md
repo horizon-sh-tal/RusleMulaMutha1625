@@ -1,52 +1,271 @@
-# RUSLE Soil Erosion Analysis# RUSLE Soil Erosion Analysis - Mula-Mutha Catchment# RUSLE Soil Erosion Analysis - Mula-Mutha Catchment
+# RUSLE Soil Erosion Analysis - Mula-Mutha Catchment (2016-2025)
 
-## Mula-Mutha Catchment, Pune (2016-2025)
-
-
+[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Status](https://img.shields.io/badge/Status-In%20Development-yellow.svg)](https://github.com/horizon-sh-tal/RusleMulaMutha1625)
 
 **MSc Geoinformatics Thesis Project**  
-
-**Author:** Bhavya Singh  ## Overview## Overview
-
+**Author:** Bhavya Singh  
 **Institution:** BVIEER, Bharati Vidyapeeth University  
-
 **Analysis Period:** 2016-2025 (10 years)
-
-
-
----This project analyzes soil erosion in the Mula-Mutha river catchment (Pune, India) using the **Revised Universal Soil Loss Equation (RUSLE)** with 11 years of real satellite data (2014-2024). The analysis combines remote sensing, GIS, and Python automation to assess erosion risk and identify conservation priorities.This project analyzes soil erosion in the Mula-Mutha river catchment (Pune, India) using the **Revised Universal Soil Loss Equation (RUSLE)** with 11 years of real satellite data (2014-2024). The analysis combines remote sensing, GIS, and Python automation to assess erosion risk and identify conservation priorities.
-
-
-
-## 📋 Project Overview
-
-
-
-This project implements the **Revised Universal Soil Loss Equation (RUSLE)** to assess soil erosion patterns in the Mula-Mutha river catchment near Pune, India. The analysis uses 10 years of satellite data (2016-2025) from Google Earth Engine.## What This Project Does## What This Project Does
-
-
-
-### RUSLE Equation
-
-```
-
-A = R × K × LS × C × P**Calculates soil erosion** using the RUSLE equation: **A = R × K × LS × C × P****Calculates soil erosion** using the RUSLE equation: **A = R × K × LS × C × P**
-
-```
-
-
 
 ---
 
-Where:Where:
+## 📋 Overview
+
+This project analyzes **soil erosion** in the Mula-Mutha river catchment (Pune, Maharashtra, India) using the **Revised Universal Soil Loss Equation (RUSLE)** methodology with 10 years of satellite data (2016-2025) from Google Earth Engine.
+
+### RUSLE Equation
+```
+A = R × K × LS × C × P
+```
+
+**Where:**
+- **A** = Annual soil loss (tons/hectare/year)
+- **R** = Rainfall erosivity factor (from CHIRPS precipitation data)
+- **K** = Soil erodibility factor (from soil texture data)
+- **LS** = Topographic factor (slope length and steepness from SRTM DEM)
+- **C** = Cover management factor (from land cover data)
+- **P** = Support practice factor (conservation practices)
+
+---
 
 ## 🗺️ Study Area
 
-- **R**: Rainfall erosivity (from CHIRPS precipitation data)- **R**: Rainfall erosivity (from CHIRPS precipitation data)
-
 - **Location:** Mula-Mutha Catchment, Pune, Maharashtra, India
+- **Area:** ~5,832 km²
+- **Coordinates:** 18.30°N - 19.00°N, 73.34°E - 74.39°E
+- **Elevation Range:** 32m - 1,312m above sea level
+- **Climate:** Semi-arid to sub-humid tropical
 
-- **Area:** ~5,832 km²- **K**: Soil erodibility (from OpenLandMap soil texture)- **K**: Soil erodibility (from OpenLandMap soil texture)
+---
+
+## 🚀 Quick Start
+
+### New PC Setup (5 minutes)
+```bash
+# 1. Clone repository
+git clone https://github.com/horizon-sh-tal/RusleMulaMutha1625.git
+cd RusleMulaMutha1625
+
+# 2. Setup environment
+python3 -m venv venv
+source venv/bin/activate  # Linux/Mac (or venv\Scripts\activate on Windows)
+pip install -r requirements.txt
+
+# 3. Authenticate Earth Engine
+earthengine authenticate --force
+
+# 4. Validate setup
+python scripts/01_environment_validation.py
+```
+
+✅ **Setup complete!** See [QUICK_START.md](QUICK_START.md) for detailed instructions.
+
+---
+
+## 📚 Documentation
+
+| Document | Purpose |
+|----------|---------|
+| **[PROJECT_HANDOVER_GUIDE.md](PROJECT_HANDOVER_GUIDE.md)** | 📖 **START HERE** - Complete project documentation, status, and next steps |
+| [QUICK_START.md](QUICK_START.md) | ⚡ 5-minute setup guide for new PC |
+| [YEAR_BY_YEAR_WORKFLOW_2016-2025.txt](YEAR_BY_YEAR_WORKFLOW_2016-2025.txt) | 📋 Detailed workflow for each analysis year |
+| [DEM_COMPARISON_REPORT.txt](DEM_COMPARISON_REPORT.txt) | 🗺️ DEM validation and comparison report |
+
+---
+
+## 📊 Current Status
+
+### ✅ Completed
+- [x] DEM data acquired and validated (SRTM 90m)
+- [x] Catchment boundary prepared
+- [x] Color scheme standardized (5-class erosion classification)
+- [x] Project structure established
+- [x] Environment validation script
+- [x] Configuration files created
+- [x] Dashboard mockup designed
+
+### 🔄 In Progress
+- [ ] LS-Factor calculation (topographic factor)
+- [ ] Rainfall data download (R-Factor)
+- [ ] Soil data acquisition (K-Factor)
+
+### ⏳ Pending
+- [ ] C-Factor calculation (land cover)
+- [ ] P-Factor assignment
+- [ ] RUSLE calculation (2016-2025)
+- [ ] Temporal trend analysis
+- [ ] Interactive dashboard generation
+- [ ] Final report
+
+**Progress:** ~20% Complete (Foundation established)
+
+---
+
+## 🛠️ Technology Stack
+
+- **Python 3.8+** - Core programming language
+- **Rasterio** - Geospatial raster processing
+- **GeoPandas** - Vector data handling
+- **Google Earth Engine** - Satellite data access (CHIRPS, MODIS, SRTM)
+- **Matplotlib/Plotly** - Visualization
+- **Folium** - Interactive web maps
+- **NumPy/SciPy** - Scientific computing
+
+---
+
+## 📂 Project Structure
+
+```
+RUSLE/
+├── catchment/                  # Study area boundary and reference DEMs
+├── temp/
+│   ├── dem_srtm_90m.tif       # ⭐ Active DEM (90m resolution)
+│   └── factors/               # Generated RUSLE factor rasters
+├── outputs/
+│   ├── figures/               # Maps and visualizations
+│   ├── maps/                  # Annual erosion maps
+│   ├── web_maps/              # Interactive HTML maps
+│   ├── statistics/            # Statistical summaries (CSV/JSON)
+│   └── logs/                  # Processing logs
+├── scripts/
+│   ├── config.py              # ⭐ Main configuration
+│   ├── color_config.py        # ⭐ Standardized color scheme
+│   ├── 01_environment_validation.py
+│   ├── 02_calculate_k_factor.py
+│   └── ...                    # Additional analysis scripts
+├── data/                      # Downloaded datasets (rainfall, soil, land cover)
+├── docs/                      # Documentation and reports
+├── PROJECT_HANDOVER_GUIDE.md  # 📖 Complete project documentation
+├── QUICK_START.md             # ⚡ Quick setup guide
+└── requirements.txt           # Python dependencies
+```
+
+---
+
+## � Erosion Classification
+
+| Category | Color | Range (t/ha/year) | Hex Code |
+|----------|-------|-------------------|----------|
+| Very Low | Dark Green | 0 - 5 | `#006837` |
+| Low | Light Green | 5 - 10 | `#7CB342` |
+| Moderate | Yellow | 10 - 20 | `#FFEB3B` |
+| High | Orange | 20 - 40 | `#FF9800` |
+| Very High | Red | > 40 | `#D32F2F` |
+
+**Consistent across all outputs:** Maps, dashboards, reports, and web visualizations.
+
+---
+
+## 🎯 Project Goals
+
+### Primary Deliverables
+1. **10 Annual Erosion Maps** (2016-2025) with consistent visualization
+2. **Interactive Web Dashboard** with 3D terrain basemap overlay
+3. **Temporal Trend Analysis** showing erosion patterns over time
+4. **Statistical Summaries** for each year and overall trends
+5. **Comprehensive Technical Report** (PDF)
+
+### Scientific Objectives
+- Quantify annual soil loss in Mula-Mutha catchment
+- Identify erosion hotspots (persistent high-risk areas)
+- Analyze temporal trends (2016-2025)
+- Assess impact of land cover changes on erosion
+- Provide recommendations for soil conservation measures
+
+---
+
+## 🔧 Key Scripts
+
+| Script | Purpose | Status |
+|--------|---------|--------|
+| `01_environment_validation.py` | Validate dependencies and setup | ✅ Ready |
+| `02_calculate_k_factor.py` | Calculate soil erodibility factor | ✅ Ready (needs soil data) |
+| `03_calculate_ls_factor.py` | Calculate topographic factor | 🔄 Next step |
+| `04_calculate_r_factor.py` | Calculate rainfall erosivity | ⏳ To create |
+| `05_calculate_c_factor.py` | Calculate cover management factor | ⏳ To create |
+| `07_calculate_rusle_yearly.py` | Annual RUSLE calculation | ⏳ To create |
+| `08_temporal_analysis.py` | Trend analysis across years | ⏳ To create |
+| `dashboard.py` | Interactive dashboard generator | ⏳ To enhance |
+
+---
+
+## � Data Sources
+
+| Data Type | Source | Resolution | Purpose |
+|-----------|--------|------------|---------|
+| **DEM** | CGIAR SRTM90 V4 | 90m | LS-Factor (topography) |
+| **Rainfall** | CHIRPS Daily | ~5km | R-Factor (erosivity) |
+| **Soil** | FAO/OpenLandMap | 250m | K-Factor (erodibility) |
+| **Land Cover** | ESA WorldCover | 10m | C-Factor (vegetation) |
+| **Catchment** | Manual delineation | Vector | Study area boundary |
+
+---
+
+## 🧑‍💻 For Developers
+
+### Adding New Analysis
+1. Create script in `scripts/` directory
+2. Import configuration from `scripts/config.py`
+3. Use colors from `scripts/color_config.py`
+4. Save outputs to appropriate `outputs/` subdirectory
+5. Update this README and project documentation
+
+### Code Style
+- Follow PEP 8 guidelines
+- Use descriptive variable names
+- Add docstrings to functions
+- Include error handling and logging
+
+### Git Workflow
+```bash
+git add .
+git commit -m "Descriptive message about changes"
+git push origin main
+```
+
+---
+
+## 📞 Support & Contact
+
+- **GitHub Repository:** https://github.com/horizon-sh-tal/RusleMulaMutha1625
+- **Issues:** Report bugs or request features via GitHub Issues
+- **Documentation:** See [PROJECT_HANDOVER_GUIDE.md](PROJECT_HANDOVER_GUIDE.md)
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see LICENSE file for details.
+
+---
+
+## 🙏 Acknowledgments
+
+- **CGIAR-CSI** for SRTM elevation data
+- **UCSB Climate Hazards Center** for CHIRPS rainfall data
+- **ESA** for WorldCover land cover data
+- **Google Earth Engine** for data access and processing platform
+- **Bharati Vidyapeeth University** for academic support
+
+---
+
+## 📝 Citation
+
+If you use this project or methodology, please cite:
+
+```
+Singh, B. (2025). RUSLE-based Soil Erosion Analysis of Mula-Mutha Catchment (2016-2025).
+MSc Geoinformatics Thesis, BVIEER, Bharati Vidyapeeth University, Pune, India.
+GitHub: https://github.com/horizon-sh-tal/RusleMulaMutha1625
+```
+
+---
+
+**Last Updated:** 19 November 2025  
+**Version:** 1.0  
+**Status:** Active Development 🚧
 
 - **Elevation Range:** 32m - 1,312m
 
