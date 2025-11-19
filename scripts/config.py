@@ -16,8 +16,10 @@ import numpy as np
 # PROJECT PATHS
 # ============================================================================
 
-# Base directory - using Path for consistency
-BASE_DIR = Path('/home/ubuntuksh/Desktop/RUSLE')
+# Base directory - PORTABLE: works on any machine, any user
+# Path(__file__).parent gets the 'scripts' directory
+# .parent again gets the project root directory
+BASE_DIR = Path(__file__).parent.parent
 
 # Input data directories
 CATCHMENT_DIR = BASE_DIR / 'catchment'
