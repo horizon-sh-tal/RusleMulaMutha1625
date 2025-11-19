@@ -231,6 +231,32 @@ VERBOSE = True
 SAVE_INTERMEDIATES = True
 
 # ============================================================================
+# COLOR CONFIGURATION (Standardized)
+# ============================================================================
+
+# Import standardized color palette for soil erosion visualization
+try:
+    from color_config import (
+        EROSION_COLORS,
+        EROSION_PALETTE,
+        EROSION_CATEGORIES,
+        EROSION_THRESHOLDS,
+        THRESHOLD_VALUES,
+        classify_erosion,
+        get_erosion_cmap,
+        PLOTLY_EROSION_SCALE,
+        LEGEND_CONFIG,
+        HTML_LEGEND
+    )
+    print("[OK] Standardized color configuration loaded")
+except ImportError:
+    # Fallback if color_config.py not available
+    EROSION_PALETTE = ['#006837', '#7CB342', '#FFEB3B', '#FF9800', '#D32F2F']
+    EROSION_CATEGORIES = ['Very Low', 'Low', 'Moderate', 'High', 'Very High']
+    THRESHOLD_VALUES = [0, 5, 10, 20, 40]
+    print("[WARNING] Using fallback color configuration")
+
+# ============================================================================
 # ERROR HANDLING
 # ============================================================================
 
