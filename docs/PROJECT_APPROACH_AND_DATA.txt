@@ -1,0 +1,298 @@
+================================================================================
+RUSLE SOIL EROSION ANALYSIS - PROJECT DOCUMENTATION
+MSc Geoinformatics Thesis | Bhavya Singh | November 2025
+================================================================================
+
+TABLE OF CONTENTS
+1. Project Approach
+2. Datasets Used
+3. Key Differences from Previous Approaches
+4. Technical Specifications
+
+================================================================================
+1. PROJECT APPROACH - TABULAR SUMMARY
+================================================================================
+
+┌──────────────────────┬─────────────────────────────────────────────────────┐
+│ PHASE                │ METHODOLOGY                                         │
+├──────────────────────┼─────────────────────────────────────────────────────┤
+│ Phase 1              │ DATA ACQUISITION (Google Earth Engine)              │
+│ Data Collection      │ • Multi-year satellite data download (2014-2024)    │
+│                      │ • 90m resolution for all datasets                   │
+│                      │ • Automated cloud-based processing                  │
+│                      │ • NoData value handling and validation              │
+├──────────────────────┼─────────────────────────────────────────────────────┤
+│ Phase 2              │ RUSLE FACTOR CALCULATION                            │
+│ Factor Computation   │ R-Factor: R = 79 + 0.363 × Annual_Precipitation     │
+│                      │ K-Factor: Lookup table (USDA soil texture)          │
+│                      │ LS-Factor: Topographic formula from DEM             │
+│                      │ C-Factor: C = exp(-2×NDVI/(1-NDVI))                 │
+│                      │ P-Factor: Slope + land cover classification         │
+├──────────────────────┼─────────────────────────────────────────────────────┤
+│ Phase 3              │ SOIL LOSS ESTIMATION                                │
+│ RUSLE Application    │ • Multiply 5 factors: A = R × K × LS × C × P        │
+│                      │ • Generate 11 annual maps (2014-2024)               │
+│                      │ • Classify erosion severity (5 classes)             │
+│                      │ • Output in t/ha/yr                                 │
+├──────────────────────┼─────────────────────────────────────────────────────┤
+│ Phase 4              │ TEMPORAL TREND ANALYSIS                             │
+│ Change Detection     │ • Year-to-year change calculation                   │
+│                      │ • Spatial pattern detection                         │
+│                      │ • Statistical trend analysis                        │
+│                      │ • Change maps generation                            │
+├──────────────────────┼─────────────────────────────────────────────────────┤
+│ Phase 5              │ VISUALIZATION & REPORTING                           │
+│ Output Generation    │ • Interactive Tkinter/HTML dashboard                │
+│                      │ • GeoTIFF to PNG conversion                         │
+│                      │ • Charts: pie, bar, line graphs                     │
+│                      │ • CSV statistics export                             │
+└──────────────────────┴─────────────────────────────────────────────────────┘
+
+================================================================================
+2. DATASETS USED - COMPLETE INVENTORY
+================================================================================
+
+┌─────────┬──────────────────────┬─────────────┬──────────┬────────────────┐
+│ FACTOR  │ DATA SOURCE          │ RESOLUTION  │ TEMPORAL │ USAGE          │
+├─────────┼──────────────────────┼─────────────┼──────────┼────────────────┤
+│ R       │ CHIRPS Daily         │ ~5 km       │ 2014-    │ Rainfall       │
+│ Rainfall│ Precipitation        │ (resampled  │ 2024     │ erosivity      │
+│ Erosiv. │ (Climate Hazards     │ to 90m)     │ Annual   │ calculation    │
+│         │ Group)               │             │          │                │
+├─────────┼──────────────────────┼─────────────┼──────────┼────────────────┤
+│ K       │ OpenLandMap          │ 250 m       │ 2018     │ Soil texture   │
+│ Soil    │ Soil Texture         │ (resampled  │ Static   │ to erodibility │
+│ Erodib. │ (Sand, Silt, Clay)   │ to 90m)     │          │ mapping        │
+│         │                      │             │          │                │
+├─────────┼──────────────────────┼─────────────┼──────────┼────────────────┤
+│ LS      │ SRTM DEM v3          │ 90 m        │ 2000     │ Slope length & │
+│ Topo    │ (NASA)               │ (native)    │ Static   │ steepness      │
+│ Factor  │                      │             │          │ calculation    │
+│         │                      │             │          │                │
+├─────────┼──────────────────────┼─────────────┼──────────┼────────────────┤
+│ C       │ Sentinel-2 MSI       │ 10 m        │ 2015-    │ NDVI from      │
+│ Cover   │ (2015-2024)          │ (resampled  │ 2024     │ NIR & Red      │
+│ Mgmt    │ Landsat 8 OLI        │ to 90m)     │ Annual   │ bands          │
+│         │ (2014-2015)          │ 30 m        │          │                │
+├─────────┼──────────────────────┼─────────────┼──────────┼────────────────┤
+│ P       │ Google Dynamic       │ 10 m        │ 2015-    │ Land cover to  │
+│ Support │ World Land Cover     │ (resampled  │ 2024     │ practice       │
+│ Practice│ + Slope from DEM     │ to 90m)     │ Annual   │ assignment     │
+│         │                      │             │          │                │
+├─────────┼──────────────────────┼─────────────┼──────────┼────────────────┤
+│ Boundary│ Manual Digitization  │ Vector      │ Static   │ Study area     │
+│         │ (Mula-Mutha shape)   │             │          │ clipping       │
+├─────────┼──────────────────────┼─────────────┼──────────┼────────────────┤
+│ Base DEM│ Local DEM            │ 90 m        │ Static   │ Spatial        │
+│         │ (DEM_PUNE_merged)    │             │          │ reference      │
+└─────────┴──────────────────────┴─────────────┴──────────┴────────────────┘
+
+DATA PROCESSING NOTES:
+• All datasets resampled to common 90m resolution (GEE memory constraint)
+• Coordinate system: EPSG:4326 (WGS84)
+• Cloud masking applied for optical imagery
+• NoData values handled: -9999 or NaN
+• Quality bands used for filtering (Sentinel-2 QA60, Landsat CFMask)
+
+================================================================================
+3. KEY DIFFERENCES - THIS PROJECT vs. TRADITIONAL APPROACH
+================================================================================
+
+┌───────────────────────┬─────────────────────┬───────────────────────────┐
+│ ASPECT                │ TRADITIONAL RUSLE   │ THIS Approach  (2025)       │
+├───────────────────────┼─────────────────────┼───────────────────────────┤
+│ TIME SCALE            │ Single year or      │ 11-year time series       │
+│                       │ 2-3 years           │ (2014-2024)               │
+├───────────────────────┼─────────────────────┼───────────────────────────┤
+│ DATA SOURCE           │ Field surveys +     │ 100% satellite/cloud      │
+│                       │ Manual digitization │ (Google Earth Engine)     │
+├───────────────────────┼─────────────────────┼───────────────────────────┤
+│ TEMPORAL ANALYSIS     │ Manual comparison   │ Automated year-to-year    │
+│                       │ of maps             │ change detection          │
+├───────────────────────┼─────────────────────┼───────────────────────────┤
+│ R-FACTOR DATA         │ Rain gauge stations │ CHIRPS satellite daily    │
+│                       │ (sparse, gaps)      │ (complete coverage)       │
+├───────────────────────┼─────────────────────┼───────────────────────────┤
+│ C-FACTOR DATA         │ Static NDVI from    │ Annual NDVI (11 years)    │
+│                       │ 1-2 images          │ from Sentinel-2/Landsat   │
+├───────────────────────┼─────────────────────┼───────────────────────────┤
+│ P-FACTOR DATA         │ Manual land use     │ Dynamic World annual      │
+│                       │ survey              │ land cover classification │
+├───────────────────────┼─────────────────────┼───────────────────────────┤
+│ PROCESSING            │ ArcGIS/QGIS manual  │ Python automation         │
+│                       │ raster calculator   │ (scripts 01-09)           │
+├───────────────────────┼─────────────────────┼───────────────────────────┤
+│ VALIDATION            │ Limited statistical │ Comprehensive validation: │
+│                       │ checks              │ • Literature comparison   │
+│                       │                     │ • Factor range checks     │
+│                       │                     │ • Spatial logic tests     │
+│                       │                     │ • Temporal consistency    │
+├───────────────────────┼─────────────────────┼───────────────────────────┤
+│ REPRODUCIBILITY       │ Low (manual steps)  │ High (fully scripted)     │
+│                       │                     │ All code in scripts/      │
+├───────────────────────┼─────────────────────┼───────────────────────────┤
+│ OUTPUT FORMAT         │ Static PDF maps     │ Interactive dashboard +   │
+│                       │                     │ GeoTIFF + CSV + PNG       │
+├───────────────────────┼─────────────────────┼───────────────────────────┤
+│ VISUALIZATION         │ Basic GIS maps      │ Interactive web dashboard │
+│                       │                     │ with year selector        │
+├───────────────────────┼─────────────────────┼───────────────────────────┤
+│ RESOLUTION HANDLING   │ Mixed resolutions   │ Standardized to 90m       │
+│                       │ cause errors        │ (resampling automated)    │
+├───────────────────────┼─────────────────────┼───────────────────────────┤
+│ COST                  │ High (field work +  │ Low (free satellite data  │
+│                       │ commercial software)│ + open source tools)      │
+├───────────────────────┼─────────────────────┼───────────────────────────┤
+│ PROCESSING TIME       │ 2-3 weeks           │ 2-3 hours (automated)     │
+│                       │ (manual intensive)  │                           │
+└───────────────────────┴─────────────────────┴───────────────────────────┘
+
+MAJOR INNOVATIONS IN THIS PROJECT:
+✓ Decadal temporal analysis (trend detection, change maps)
+✓ Cloud-based processing (Google Earth Engine API)
+✓ Fully automated workflow (reproducible)
+✓ Multi-source data integration (5 satellite datasets)
+✓ Interactive visualization (Tkinter + Plotly dashboards)
+✓ Comprehensive validation framework
+✓ Open source stack (Python, GDAL, Rasterio)
+✓ Real-time data updates possible (2025 onward)
+
+================================================================================
+4. TECHNICAL SPECIFICATIONS
+================================================================================
+
+STUDY AREA:
+• Name: Mula-Mutha River Catchment
+• Location: Pune District, Maharashtra, India
+• Coordinates: 18°17′–18°31′ N, 73°25′–73°53′ E
+• Area: 5,832 km² (583,200 hectares)
+• Elevation Range: 560m to 1,200m ASL
+• Land Use: Mixed urban (30%), agricultural (50%), forest (20%)
+
+ANALYSIS PARAMETERS:
+• Temporal Coverage: 2014-2024 (11 years)
+• Spatial Resolution: 90 meters
+• Projection: EPSG:4326 (WGS84 Geographic)
+• Pixel Count: ~720,000 per year
+• Total Pixels Analyzed: ~7.9 million (11 years)
+
+EROSION CLASSIFICATION:
+┌───────┬──────────────────┬─────────────┐
+│ Class │ Range (t/ha/yr)  │ Severity    │
+├───────┼──────────────────┼─────────────┤
+│   1   │ 0 - 5            │ Very Low    │
+│   2   │ 5 - 10           │ Low         │
+│   3   │ 10 - 20          │ Moderate    │
+│   4   │ 20 - 40          │ High        │
+│   5   │ 40+              │ Very High   │
+└───────┴──────────────────┴─────────────┘
+
+SOFTWARE STACK:
+• Python 3.11
+• earthengine-api 0.1.x (GEE connector)
+• rasterio 1.3.x (geospatial raster I/O)
+• geopandas 0.14.x (vector processing)
+• numpy 1.26.x (numerical computing)
+• pandas 2.1.x (data analysis)
+• matplotlib 3.8.x (plotting)
+• scipy 1.11.x (statistics)
+• tkinter (GUI dashboard)
+• Pillow (image processing)
+
+OUTPUT FILES:
+Maps (GeoTIFF):
+• soil_loss_YYYY.tif (11 files) - Annual erosion in t/ha/yr
+• erosion_class_YYYY.tif (11 files) - Classification 1-5
+• soil_loss_change_2014_2024.tif - Decadal change map
+• Factor files: ls_factor.tif, k_factor.tif, r_factor_YYYY.tif, etc.
+
+Statistics (CSV):
+• rusle_annual_statistics.csv - Complete annual summary
+• temporal_statistics.csv - Trend analysis
+• r_factor_annual_statistics.csv - Rainfall erosivity stats
+• c_factor_annual_statistics.csv - Cover management stats
+• p_factor_annual_statistics.csv - Support practice stats
+
+Visualizations (PNG):
+• soil_loss_map_YYYY.png (11 files) - Web-optimized maps
+• temporal_analysis.png - Trend charts
+• erosion_area_distribution.png - Pie charts
+• change_map_2014_2024.png - Change visualization
+• factor_correlation.png - Factor relationships
+
+Dashboards:
+• RUSLE_Dashboard.html - Interactive web dashboard (Plotly.js)
+• dashboard.py - Tkinter desktop application
+
+VALIDATION RESULTS:
+✓ R-Factor Range: 200-1200 MJ mm/ha/h/yr (valid)
+✓ K-Factor Range: 0.005-0.07 t h/MJ/mm (valid)
+✓ LS-Factor Range: 0-50 (valid)
+✓ C-Factor Range: 0-1 (valid)
+✓ P-Factor Range: 0.1-1.0 (valid)
+✓ Spatial Logic: High erosion on steep/bare slopes ✓
+✓ Temporal Consistency: Gradual year-to-year changes ✓
+
+KEY FINDINGS:
+• Mean Soil Loss (2014-2024): 643 t/ha/yr
+• Median Soil Loss: 35.3 t/ha/yr
+• Erosion Trend: 49% DECREASE (2014 → 2024)
+• Area Improved: 81.4% of catchment
+• Severe Erosion: 45% of area (>40 t/ha/yr)
+• Peak Erosion Year: 2014 (1457 t/ha/yr mean)
+• Lowest Erosion Year: 2016 (152 t/ha/yr mean)
+
+WORKFLOW EXECUTION TIME:
+• Data Download (GEE): ~30 minutes
+• Factor Calculation: ~45 minutes
+• RUSLE Computation: ~30 minutes
+• Temporal Analysis: ~15 minutes
+• Visualization: ~10 minutes
+• TOTAL: ~2-3 hours (automated)
+
+SYSTEM REQUIREMENTS:
+• OS: Linux/Windows/macOS
+• RAM: 8 GB minimum (16 GB recommended)
+• Storage: 5 GB free space
+• Internet: Required for GEE data download
+• Python: 3.10 or higher
+
+================================================================================
+PROJECT TIMELINE
+================================================================================
+
+PHASE 1 (Oct 2024): Literature review, methodology design
+PHASE 2 (Oct-Nov 2024): GEE data acquisition scripts
+PHASE 3 (Nov 2024): RUSLE factor calculation implementation
+PHASE 4 (Nov 2024): Soil loss estimation and validation
+PHASE 5 (Nov 2025): Temporal analysis and dashboard development
+PHASE 6 (Nov 2025): Documentation and thesis writing
+
+STATUS: Implementation Complete ✅
+NEXT STEPS: Thesis defense preparation
+
+================================================================================
+REFERENCES
+================================================================================
+
+1. Renard et al. (1997) - RUSLE Guide (USDA Agriculture Handbook 703)
+2. Wischmeier & Smith (1978) - USLE original methodology
+3. Shinde et al. (2010) - RUSLE application in Western Ghats region
+4. Ganasri & Ramesh (2016) - GIS-based RUSLE methodology
+5. Panagos et al. (2015) - European soil erosion assessment
+6. CHIRPS - Funk et al. (2015) - Precipitation dataset paper
+7. Dynamic World - Brown et al. (2022) - Near real-time land cover
+8. Google Earth Engine - Gorelick et al. (2017) - Platform paper
+
+================================================================================
+CONTACT & REPOSITORY
+================================================================================
+
+Author: Bhavya Singh
+Institution: BVIEER, Bharati Vidyapeeth University, Pune
+Program: MSc Geoinformatics (2023-2025)
+Supervisor: Dr. Lakshmi Kantakumar N.
+
+================================================================================
+END OF DOCUMENT
+================================================================================

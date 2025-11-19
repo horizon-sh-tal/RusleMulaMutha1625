@@ -1,0 +1,558 @@
+================================================================================
+COMPLETE YEAR-BY-YEAR WORKFLOW (2016-2025)
+RUSLE Soil Erosion Analysis - Mula-Mutha Catchment
+================================================================================
+
+================================================================================
+INITIAL SETUP (ONE-TIME ONLY)
+================================================================================
+
+Step 0: Data Preparation
+├── Load catchment boundary shapefile
+├── Load and validate DEM
+├── Clip DEM to catchment
+└── Resample to 90m resolution
+
+================================================================================
+STATIC FACTORS (ONE-TIME ONLY - USE FOR ALL YEARS)
+================================================================================
+
+Step 1: Calculate K-Factor (Soil Erodibility)
+├── Download OpenLandMap soil texture (2016-01-01)
+├── Extract sand%, silt%, clay%
+├── Apply USDA lookup table
+├── Save: temp/factors/k_factor.tif
+└── Validate: Check range (0.005 - 0.07)
+
+Step 2: Calculate LS-Factor (Topography)
+├── Calculate slope from DEM
+├── Calculate slope length
+├── Apply RUSLE formula
+├── Save: temp/factors/ls_factor.tif
+└── Validate: Check range (0 - 50)
+
+================================================================================
+FOR YEAR 2016:
+================================================================================
+
+Year 2016 - Landsat 8 for NDVI
+
+Step 1: Use existing K-Factor (calculated above)
+Step 2: Use existing LS-Factor (calculated above)
+
+Step 3: Calculate R-Factor (Rainfall Erosivity)
+├── Download CHIRPS daily precipitation (2016-01-01 to 2016-12-31)
+├── Sum annual precipitation
+├── Apply formula: R = 79 + 0.363 × Precipitation
+├── Save: temp/factors/r_factor_2016.tif
+└── Validate: Check range (200 - 1200), mean ~600
+
+Step 4: Calculate C-Factor (Vegetation Cover)
+├── Download Landsat 8 images (2016-01-01 to 2016-12-31)
+├── Apply cloud masking (QA_PIXEL band)
+├── Calculate NDVI: (NIR - Red) / (NIR + Red)
+├── Take median NDVI for the year
+├── Apply formula: C = exp(-2 × NDVI / (1 - NDVI))
+├── Save: temp/factors/c_factor_2016.tif
+└── Validate: Check NDVI range (-0.2 to 1.0), C-factor (0 to 1)
+
+Step 5: Calculate P-Factor (Conservation Practice)
+├── Download Dynamic World land cover (2016-01-01 to 2016-12-31)
+├── Get dominant land cover class per pixel
+├── Combine with slope data
+├── Assign P-values based on land use + slope
+├── Save: temp/factors/p_factor_2016.tif
+└── Validate: Check range (0.1 - 1.0)
+
+Step 6: Calculate RUSLE (Soil Loss)
+├── Load all 5 factors: R, K, LS, C, P
+├── Multiply: Soil_Loss = R × K × LS × C × P
+├── Classify into severity classes (1-5)
+├── Save: outputs/maps/soil_loss_2016.tif
+├── Save: outputs/maps/erosion_class_2016.tif
+└── Calculate statistics (mean, median, area per class)
+
+Step 7: Validate 2016 Output
+├── Check soil loss range (0 - reasonable max)
+├── Verify mean erosion (should be 5-30 t/ha/yr for region)
+├── Check spatial patterns (high on steep slopes)
+├── Generate visualization
+└── Save statistics to CSV
+
+================================================================================
+FOR YEAR 2017:
+================================================================================
+
+Year 2017 - Landsat 8 for NDVI
+
+Step 1: Use existing K-Factor (static)
+Step 2: Use existing LS-Factor (static)
+
+Step 3: Calculate R-Factor (Rainfall Erosivity)
+├── Download CHIRPS daily precipitation (2017-01-01 to 2017-12-31)
+├── Sum annual precipitation
+├── Apply formula: R = 79 + 0.363 × Precipitation
+├── Save: temp/factors/r_factor_2017.tif
+└── Validate: Check range (200 - 1200), mean ~600
+
+Step 4: Calculate C-Factor (Vegetation Cover)
+├── Download Landsat 8 images (2017-01-01 to 2017-12-31)
+├── Apply cloud masking (QA_PIXEL band)
+├── Calculate NDVI: (NIR - Red) / (NIR + Red)
+├── Take median NDVI for the year
+├── Apply formula: C = exp(-2 × NDVI / (1 - NDVI))
+├── Save: temp/factors/c_factor_2017.tif
+└── Validate: Check NDVI range (-0.2 to 1.0), C-factor (0 to 1)
+
+Step 5: Calculate P-Factor (Conservation Practice)
+├── Download Dynamic World land cover (2017-01-01 to 2017-12-31)
+├── Get dominant land cover class per pixel
+├── Combine with slope data
+├── Assign P-values based on land use + slope
+├── Save: temp/factors/p_factor_2017.tif
+└── Validate: Check range (0.1 - 1.0)
+
+Step 6: Calculate RUSLE (Soil Loss)
+├── Load all 5 factors: R, K, LS, C, P
+├── Multiply: Soil_Loss = R × K × LS × C × P
+├── Classify into severity classes (1-5)
+├── Save: outputs/maps/soil_loss_2017.tif
+├── Save: outputs/maps/erosion_class_2017.tif
+└── Calculate statistics (mean, median, area per class)
+
+Step 7: Validate 2017 Output
+├── Check soil loss range
+├── Compare with 2016 (should be similar, gradual change)
+├── Verify spatial patterns
+├── Generate visualization
+└── Save statistics to CSV
+
+================================================================================
+FOR YEAR 2018:
+================================================================================
+
+Year 2018 - Sentinel-2 for NDVI (SWITCH FROM LANDSAT)
+
+Step 1: Use existing K-Factor (static)
+Step 2: Use existing LS-Factor (static)
+
+Step 3: Calculate R-Factor (Rainfall Erosivity)
+├── Download CHIRPS daily precipitation (2018-01-01 to 2018-12-31)
+├── Sum annual precipitation
+├── Apply formula: R = 79 + 0.363 × Precipitation
+├── Save: temp/factors/r_factor_2018.tif
+└── Validate: Check range (200 - 1200), mean ~600
+
+Step 4: Calculate C-Factor (Vegetation Cover)
+├── Download Sentinel-2 images (2018-01-01 to 2018-12-31) *** NEW ***
+├── Apply cloud masking (QA60 band)
+├── Calculate NDVI: (NIR - Red) / (NIR + Red)
+├── Take median NDVI for the year
+├── Apply formula: C = exp(-2 × NDVI / (1 - NDVI))
+├── Save: temp/factors/c_factor_2018.tif
+└── Validate: Check NDVI range (-0.2 to 1.0), C-factor (0 to 1)
+
+Step 5: Calculate P-Factor (Conservation Practice)
+├── Download Dynamic World land cover (2018-01-01 to 2018-12-31)
+├── Get dominant land cover class per pixel
+├── Combine with slope data
+├── Assign P-values based on land use + slope
+├── Save: temp/factors/p_factor_2018.tif
+└── Validate: Check range (0.1 - 1.0)
+
+Step 6: Calculate RUSLE (Soil Loss)
+├── Load all 5 factors: R, K, LS, C, P
+├── Multiply: Soil_Loss = R × K × LS × C × P
+├── Classify into severity classes (1-5)
+├── Save: outputs/maps/soil_loss_2018.tif
+├── Save: outputs/maps/erosion_class_2018.tif
+└── Calculate statistics (mean, median, area per class)
+
+Step 7: Validate 2018 Output
+├── Check soil loss range
+├── Compare with 2017 (transition from Landsat to Sentinel-2)
+├── Verify spatial patterns
+├── Generate visualization
+└── Save statistics to CSV
+
+================================================================================
+FOR YEAR 2019:
+================================================================================
+
+Year 2019 - Sentinel-2 for NDVI
+
+Step 1: Use existing K-Factor (static)
+Step 2: Use existing LS-Factor (static)
+
+Step 3: Calculate R-Factor (Rainfall Erosivity)
+├── Download CHIRPS daily precipitation (2019-01-01 to 2019-12-31)
+├── Sum annual precipitation
+├── Apply formula: R = 79 + 0.363 × Precipitation
+├── Save: temp/factors/r_factor_2019.tif
+└── Validate: Check range (200 - 1200), mean ~600
+
+Step 4: Calculate C-Factor (Vegetation Cover)
+├── Download Sentinel-2 images (2019-01-01 to 2019-12-31)
+├── Apply cloud masking (QA60 band)
+├── Calculate NDVI: (NIR - Red) / (NIR + Red)
+├── Take median NDVI for the year
+├── Apply formula: C = exp(-2 × NDVI / (1 - NDVI))
+├── Save: temp/factors/c_factor_2019.tif
+└── Validate: Check NDVI range (-0.2 to 1.0), C-factor (0 to 1)
+
+Step 5: Calculate P-Factor (Conservation Practice)
+├── Download Dynamic World land cover (2019-01-01 to 2019-12-31)
+├── Get dominant land cover class per pixel
+├── Combine with slope data
+├── Assign P-values based on land use + slope
+├── Save: temp/factors/p_factor_2019.tif
+└── Validate: Check range (0.1 - 1.0)
+
+Step 6: Calculate RUSLE (Soil Loss)
+├── Load all 5 factors: R, K, LS, C, P
+├── Multiply: Soil_Loss = R × K × LS × C × P
+├── Classify into severity classes (1-5)
+├── Save: outputs/maps/soil_loss_2019.tif
+├── Save: outputs/maps/erosion_class_2019.tif
+└── Calculate statistics (mean, median, area per class)
+
+Step 7: Validate 2019 Output
+├── Check soil loss range
+├── Compare with 2018 (gradual change expected)
+├── Verify spatial patterns
+├── Generate visualization
+└── Save statistics to CSV
+
+================================================================================
+FOR YEAR 2020:
+================================================================================
+
+Year 2020 - Sentinel-2 for NDVI
+
+Step 1: Use existing K-Factor (static)
+Step 2: Use existing LS-Factor (static)
+
+Step 3: Calculate R-Factor (Rainfall Erosivity)
+├── Download CHIRPS daily precipitation (2020-01-01 to 2020-12-31)
+├── Sum annual precipitation
+├── Apply formula: R = 79 + 0.363 × Precipitation
+├── Save: temp/factors/r_factor_2020.tif
+└── Validate: Check range (200 - 1200), mean ~600
+
+Step 4: Calculate C-Factor (Vegetation Cover)
+├── Download Sentinel-2 images (2020-01-01 to 2020-12-31)
+├── Apply cloud masking (QA60 band)
+├── Calculate NDVI: (NIR - Red) / (NIR + Red)
+├── Take median NDVI for the year
+├── Apply formula: C = exp(-2 × NDVI / (1 - NDVI))
+├── Save: temp/factors/c_factor_2020.tif
+└── Validate: Check NDVI range (-0.2 to 1.0), C-factor (0 to 1)
+
+Step 5: Calculate P-Factor (Conservation Practice)
+├── Download Dynamic World land cover (2020-01-01 to 2020-12-31)
+├── Get dominant land cover class per pixel
+├── Combine with slope data
+├── Assign P-values based on land use + slope
+├── Save: temp/factors/p_factor_2020.tif
+└── Validate: Check range (0.1 - 1.0)
+
+Step 6: Calculate RUSLE (Soil Loss)
+├── Load all 5 factors: R, K, LS, C, P
+├── Multiply: Soil_Loss = R × K × LS × C × P
+├── Classify into severity classes (1-5)
+├── Save: outputs/maps/soil_loss_2020.tif
+├── Save: outputs/maps/erosion_class_2020.tif
+└── Calculate statistics (mean, median, area per class)
+
+Step 7: Validate 2020 Output
+├── Check soil loss range
+├── Compare with 2019 (gradual change expected)
+├── Verify spatial patterns
+├── Generate visualization
+└── Save statistics to CSV
+
+================================================================================
+FOR YEAR 2021:
+================================================================================
+
+Year 2021 - Sentinel-2 for NDVI
+
+Step 1: Use existing K-Factor (static)
+Step 2: Use existing LS-Factor (static)
+
+Step 3: Calculate R-Factor (Rainfall Erosivity)
+├── Download CHIRPS daily precipitation (2021-01-01 to 2021-12-31)
+├── Sum annual precipitation
+├── Apply formula: R = 79 + 0.363 × Precipitation
+├── Save: temp/factors/r_factor_2021.tif
+└── Validate: Check range (200 - 1200), mean ~600
+
+Step 4: Calculate C-Factor (Vegetation Cover)
+├── Download Sentinel-2 images (2021-01-01 to 2021-12-31)
+├── Apply cloud masking (QA60 band)
+├── Calculate NDVI: (NIR - Red) / (NIR + Red)
+├── Take median NDVI for the year
+├── Apply formula: C = exp(-2 × NDVI / (1 - NDVI))
+├── Save: temp/factors/c_factor_2021.tif
+└── Validate: Check NDVI range (-0.2 to 1.0), C-factor (0 to 1)
+
+Step 5: Calculate P-Factor (Conservation Practice)
+├── Download Dynamic World land cover (2021-01-01 to 2021-12-31)
+├── Get dominant land cover class per pixel
+├── Combine with slope data
+├── Assign P-values based on land use + slope
+├── Save: temp/factors/p_factor_2021.tif
+└── Validate: Check range (0.1 - 1.0)
+
+Step 6: Calculate RUSLE (Soil Loss)
+├── Load all 5 factors: R, K, LS, C, P
+├── Multiply: Soil_Loss = R × K × LS × C × P
+├── Classify into severity classes (1-5)
+├── Save: outputs/maps/soil_loss_2021.tif
+├── Save: outputs/maps/erosion_class_2021.tif
+└── Calculate statistics (mean, median, area per class)
+
+Step 7: Validate 2021 Output
+├── Check soil loss range
+├── Compare with 2020 (gradual change expected)
+├── Verify spatial patterns
+├── Generate visualization
+└── Save statistics to CSV
+
+================================================================================
+FOR YEAR 2022:
+================================================================================
+
+Year 2022 - Sentinel-2 for NDVI
+
+Step 1: Use existing K-Factor (static)
+Step 2: Use existing LS-Factor (static)
+
+Step 3: Calculate R-Factor (Rainfall Erosivity)
+├── Download CHIRPS daily precipitation (2022-01-01 to 2022-12-31)
+├── Sum annual precipitation
+├── Apply formula: R = 79 + 0.363 × Precipitation
+├── Save: temp/factors/r_factor_2022.tif
+└── Validate: Check range (200 - 1200), mean ~600
+
+Step 4: Calculate C-Factor (Vegetation Cover)
+├── Download Sentinel-2 images (2022-01-01 to 2022-12-31)
+├── Apply cloud masking (QA60 band)
+├── Calculate NDVI: (NIR - Red) / (NIR + Red)
+├── Take median NDVI for the year
+├── Apply formula: C = exp(-2 × NDVI / (1 - NDVI))
+├── Save: temp/factors/c_factor_2022.tif
+└── Validate: Check NDVI range (-0.2 to 1.0), C-factor (0 to 1)
+
+Step 5: Calculate P-Factor (Conservation Practice)
+├── Download Dynamic World land cover (2022-01-01 to 2022-12-31)
+├── Get dominant land cover class per pixel
+├── Combine with slope data
+├── Assign P-values based on land use + slope
+├── Save: temp/factors/p_factor_2022.tif
+└── Validate: Check range (0.1 - 1.0)
+
+Step 6: Calculate RUSLE (Soil Loss)
+├── Load all 5 factors: R, K, LS, C, P
+├── Multiply: Soil_Loss = R × K × LS × C × P
+├── Classify into severity classes (1-5)
+├── Save: outputs/maps/soil_loss_2022.tif
+├── Save: outputs/maps/erosion_class_2022.tif
+└── Calculate statistics (mean, median, area per class)
+
+Step 7: Validate 2022 Output
+├── Check soil loss range
+├── Compare with 2021 (gradual change expected)
+├── Verify spatial patterns
+├── Generate visualization
+└── Save statistics to CSV
+
+================================================================================
+FOR YEAR 2023:
+================================================================================
+
+Year 2023 - Sentinel-2 for NDVI
+
+Step 1: Use existing K-Factor (static)
+Step 2: Use existing LS-Factor (static)
+
+Step 3: Calculate R-Factor (Rainfall Erosivity)
+├── Download CHIRPS daily precipitation (2023-01-01 to 2023-12-31)
+├── Sum annual precipitation
+├── Apply formula: R = 79 + 0.363 × Precipitation
+├── Save: temp/factors/r_factor_2023.tif
+└── Validate: Check range (200 - 1200), mean ~600
+
+Step 4: Calculate C-Factor (Vegetation Cover)
+├── Download Sentinel-2 images (2023-01-01 to 2023-12-31)
+├── Apply cloud masking (QA60 band)
+├── Calculate NDVI: (NIR - Red) / (NIR + Red)
+├── Take median NDVI for the year
+├── Apply formula: C = exp(-2 × NDVI / (1 - NDVI))
+├── Save: temp/factors/c_factor_2023.tif
+└── Validate: Check NDVI range (-0.2 to 1.0), C-factor (0 to 1)
+
+Step 5: Calculate P-Factor (Conservation Practice)
+├── Download Dynamic World land cover (2023-01-01 to 2023-12-31)
+├── Get dominant land cover class per pixel
+├── Combine with slope data
+├── Assign P-values based on land use + slope
+├── Save: temp/factors/p_factor_2023.tif
+└── Validate: Check range (0.1 - 1.0)
+
+Step 6: Calculate RUSLE (Soil Loss)
+├── Load all 5 factors: R, K, LS, C, P
+├── Multiply: Soil_Loss = R × K × LS × C × P
+├── Classify into severity classes (1-5)
+├── Save: outputs/maps/soil_loss_2023.tif
+├── Save: outputs/maps/erosion_class_2023.tif
+└── Calculate statistics (mean, median, area per class)
+
+Step 7: Validate 2023 Output
+├── Check soil loss range
+├── Compare with 2022 (gradual change expected)
+├── Verify spatial patterns
+├── Generate visualization
+└── Save statistics to CSV
+
+================================================================================
+FOR YEAR 2024:
+================================================================================
+
+Year 2024 - Sentinel-2 for NDVI
+
+Step 1: Use existing K-Factor (static)
+Step 2: Use existing LS-Factor (static)
+
+Step 3: Calculate R-Factor (Rainfall Erosivity)
+├── Download CHIRPS daily precipitation (2024-01-01 to 2024-12-31)
+├── Sum annual precipitation
+├── Apply formula: R = 79 + 0.363 × Precipitation
+├── Save: temp/factors/r_factor_2024.tif
+└── Validate: Check range (200 - 1200), mean ~600
+
+Step 4: Calculate C-Factor (Vegetation Cover)
+├── Download Sentinel-2 images (2024-01-01 to 2024-12-31)
+├── Apply cloud masking (QA60 band)
+├── Calculate NDVI: (NIR - Red) / (NIR + Red)
+├── Take median NDVI for the year
+├── Apply formula: C = exp(-2 × NDVI / (1 - NDVI))
+├── Save: temp/factors/c_factor_2024.tif
+└── Validate: Check NDVI range (-0.2 to 1.0), C-factor (0 to 1)
+
+Step 5: Calculate P-Factor (Conservation Practice)
+├── Download Dynamic World land cover (2024-01-01 to 2024-12-31)
+├── Get dominant land cover class per pixel
+├── Combine with slope data
+├── Assign P-values based on land use + slope
+├── Save: temp/factors/p_factor_2024.tif
+└── Validate: Check range (0.1 - 1.0)
+
+Step 6: Calculate RUSLE (Soil Loss)
+├── Load all 5 factors: R, K, LS, C, P
+├── Multiply: Soil_Loss = R × K × LS × C × P
+├── Classify into severity classes (1-5)
+├── Save: outputs/maps/soil_loss_2024.tif
+├── Save: outputs/maps/erosion_class_2024.tif
+└── Calculate statistics (mean, median, area per class)
+
+Step 7: Validate 2024 Output
+├── Check soil loss range
+├── Compare with 2023 (gradual change expected)
+├── Verify spatial patterns
+├── Generate visualization
+└── Save statistics to CSV
+
+================================================================================
+FOR YEAR 2025:
+================================================================================
+
+Year 2025 - Sentinel-2 for NDVI (PARTIAL YEAR - Jan to Nov)
+
+Step 1: Use existing K-Factor (static)
+Step 2: Use existing LS-Factor (static)
+
+Step 3: Calculate R-Factor (Rainfall Erosivity)
+├── Download CHIRPS daily precipitation (2025-01-01 to 2025-11-30) [WARNING]
+├── Sum precipitation (Jan-Nov only)
+├── Apply formula: R = 79 + 0.363 × Precipitation
+├── Save: temp/factors/r_factor_2025.tif
+└── Validate: Check range (lower than full year expected)
+
+Step 4: Calculate C-Factor (Vegetation Cover)
+├── Download Sentinel-2 images (2025-01-01 to 2025-11-30) [WARNING]
+├── Apply cloud masking (QA60 band)
+├── Calculate NDVI: (NIR - Red) / (NIR + Red)
+├── Take median NDVI (Jan-Nov only)
+├── Apply formula: C = exp(-2 × NDVI / (1 - NDVI))
+├── Save: temp/factors/c_factor_2025.tif
+└── Validate: Check NDVI range (-0.2 to 1.0), C-factor (0 to 1)
+
+Step 5: Calculate P-Factor (Conservation Practice)
+├── Download Dynamic World land cover (2025-01-01 to 2025-11-30) [WARNING]
+├── Get dominant land cover class per pixel (Jan-Nov only)
+├── Combine with slope data
+├── Assign P-values based on land use + slope
+├── Save: temp/factors/p_factor_2025.tif
+└── Validate: Check range (0.1 - 1.0)
+
+Step 6: Calculate RUSLE (Soil Loss)
+├── Load all 5 factors: R, K, LS, C, P
+├── Multiply: Soil_Loss = R × K × LS × C × P
+├── Classify into severity classes (1-5)
+├── Save: outputs/maps/soil_loss_2025.tif
+├── Save: outputs/maps/erosion_class_2025.tif
+└── Calculate statistics (mean, median, area per class)
+
+Step 7: Validate 2025 Output
+├── Check soil loss range
+├── Note: Partial year data (Jan-Nov only)
+├── Compare with 2024 (may be lower due to partial year)
+├── Verify spatial patterns
+├── Generate visualization
+└── Save statistics to CSV (mark as partial year)
+
+================================================================================
+FINAL STEP - TEMPORAL ANALYSIS (AFTER ALL YEARS COMPLETE)
+================================================================================
+
+Temporal Analysis (2016-2025)
+├── Step 1: Load all 10 soil loss maps
+├── Step 2: Calculate year-to-year changes
+├── Step 3: Detect trends (increasing/decreasing erosion)
+├── Step 4: Generate change maps (2016→2025)
+├── Step 5: Create temporal statistics CSV
+└── Step 6: Generate trend visualizations
+
+================================================================================
+DASHBOARD GENERATION
+================================================================================
+
+Interactive Dashboard
+├── Step 1: Generate web-optimized PNG maps for all years
+├── Step 2: Load all statistics CSVs
+├── Step 3: Create HTML dashboard with:
+│   ├── Year selector buttons (2016-2025)
+│   ├── Statistics cards
+│   ├── Interactive maps
+│   └── Plotly charts
+└── Step 4: Save as RUSLE_Dashboard.html
+
+================================================================================
+SUMMARY
+================================================================================
+
+Total Years: 10 (2016-2025)
+Static Factors: 2 (K, LS) - calculated once
+Dynamic Factors per Year: 3 (R, C, P) - calculated for each year
+Total Factor Files: 2 + (3 × 10) = 32 factor files
+Total Soil Loss Maps: 10 maps
+
+Data Source Transitions:
+- 2016-2017: Landsat 8 for C-Factor
+- 2018-2025: Sentinel-2 for C-Factor
+- 2025: Partial year (Jan-Nov) for R, C, P factors
+
+================================================================================
+END OF WORKFLOW DOCUMENT
+================================================================================
