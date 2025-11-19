@@ -30,10 +30,18 @@ Thumbs.db
 # Large data files - don't commit to GitHub
 temp/*.tif
 temp/*.tiff
+temp/*.geojson
 temp/factors/*.tif
 temp/factors/*.tiff
+
+# Output files - Keep folder structure only, not the actual outputs
 outputs/maps/*.tif
 outputs/maps/*.tiff
+outputs/maps/*.png
+outputs/statistics/*.csv
+outputs/figures/*.png
+outputs/figures/*.jpg
+outputs/logs/*.log
 
 # Backup folders
 backup_*/
@@ -41,15 +49,15 @@ backup_*/
 # Large zip files
 *.zip
 
-# Log files (optional - keep recent logs)
-*.log
-
 # Virtual environment
 venv/
 .venv/
 
-# Specific large files from old project
+# Old project files
 RUSLE_Dashboard.html
+README_old.md
+*_old.*
+*_backup.*
 
 # Keep these directories but ignore contents
 !temp/.gitkeep
