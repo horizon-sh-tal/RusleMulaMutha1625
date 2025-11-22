@@ -1,6 +1,5 @@
-# RUSLE Project Dependencies
-# Updated: 17 November 2025
-# Python 3.9+
+# --- Core runtime pin to keep geemap happy ---
+ipython<9
 
 # Geospatial Core
 geopandas==0.14.1
@@ -10,8 +9,15 @@ shapely==2.0.2
 pyproj==3.6.1
 
 # Google Earth Engine
-earthengine-api==0.1.384
+earthengine-api
 geemap==0.29.6
+# geemap widget deps (stable set)
+ipywidgets>=8.1,<9
+ipyleaflet==0.20.0
+widgetsnbextension~=4.0
+jupyterlab-widgets~=3.0
+folium>=0.14
+branca>=0.6,<0.9
 
 # Scientific Computing
 numpy==1.24.3
@@ -19,7 +25,6 @@ scipy==1.11.4
 pandas==2.1.4
 
 # DEM Analysis
-richdem==0.3.4
 whitebox==2.3.0
 
 # Visualization
@@ -31,6 +36,6 @@ plotly==5.18.0
 tqdm==4.66.1
 python-dotenv==1.0.0
 
-# Jupyter (optional, for interactive development)
+# Jupyter (optional)
 jupyter==1.0.0
 ipykernel==6.27.1

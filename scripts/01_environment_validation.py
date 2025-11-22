@@ -1,514 +1,841 @@
+# #!/usr/bin/env python3
+# """
+# RUSLE Project 2016-2025: Environment & Data Validation (Single-file, ASCII-only)
+# -------------------------------------------------------------------------------
+
+# - No emojis, no special unicode — Windows-friendly
+# - No external local imports (no 'checks' package required)
+# - Reads GEE project ID from BASE_DIR/gee_project_config.txt if present
+# - Falls back to env var GEE_PROJECT_ID, then to ee.Initialize() without project
+
+# Run:
+#     python scripts/01_environment_validation.py
+# """
+
+# import sys
+# import os
+# from pathlib import Path
+# import warnings
+
+# warnings.filterwarnings("ignore")
+
+# # -----------------------------------------------------------------------------
+# # Simple printing helpers (ASCII only)
+# # -----------------------------------------------------------------------------
+# def heading(title: str):
+#     print("\n" + "=" * 70)
+#     print(title)
+#     print("=" * 70 + "\n")
+
+# def section(title: str):
+#     print("\n" + "-" * 70)
+#     print(title)
+#     print("-" * 70 + "\n")
+
+# def ok(msg: str):
+#     print(f"OK    {msg}")
+
+# def fail(msg: str):
+#     print(f"FAIL  {msg}")
+
+# def info(msg: str):
+#     print(f"INFO  {msg}")
+
+# # Project root
+# BASE_DIR = Path(__file__).parent.parent
+
+# # -----------------------------------------------------------------------------
+# # 1) Python version
+# # -----------------------------------------------------------------------------
+# def check_python_version():
+#     heading("1. PYTHON VERSION CHECK")
+#     v = sys.version_info
+#     vstr = f"{v.major}.{v.minor}.{v.micro}"
+#     info(f"Python version: {vstr}")
+#     info(f"Executable: {sys.executable}")
+#     if v.major >= 3 and v.minor >= 8:
+#         ok(f"Python {vstr} is compatible (>= 3.8 required)")
+#         return True
+#     fail(f"Python {vstr} is too old (>= 3.8 required)")
+#     return False
+
+# # -----------------------------------------------------------------------------
+# # 2) Required packages
+# # -----------------------------------------------------------------------------
+# def check_required_packages():
+#     heading("2. PYTHON PACKAGES CHECK")
+#     required = {
+#         'numpy': 'numpy',
+#         'pandas': 'pandas',
+#         'geopandas': 'geopandas',
+#         'rasterio': 'rasterio',
+#         'matplotlib': 'matplotlib',
+#         'scipy': 'scipy',
+#         'ee': 'earthengine-api',
+#         'folium': 'folium',
+#         'plotly': 'plotly',
+#         'shapely': 'shapely',
+#         'pyproj': 'pyproj',
+#         'tqdm': 'tqdm',
+#         'requests': 'requests',
+#     }
+#     all_ok = True
+#     installed = 0
+#     for mod, pkgname in required.items():
+#         try:
+#             m = __import__(mod)
+#             ver = getattr(m, "__version__", "unknown")
+#             ok(f"{pkgname:20s} version {ver}")
+#             installed += 1
+#         except Exception:
+#             fail(f"{pkgname:20s} NOT INSTALLED")
+#             all_ok = False
+
+#     print("\nSummary:")
+#     print(f"Installed {installed} of {len(required)} packages")
+#     return all_ok
+
+# # -----------------------------------------------------------------------------
+# # 3) System resources
+# # -----------------------------------------------------------------------------
+# def check_system_resources():
+#     heading("3. SYSTEM RESOURCES CHECK")
+#     # Disk
+#     try:
+#         import shutil
+#         total, used, free = shutil.disk_usage(Path.home())
+#         total_gb = total / (1024**3)
+#         free_gb = free / (1024**3)
+#         used_pct = used / total * 100.0
+#         info(f"Disk total: {total_gb:.2f} GB")
+#         info(f"Disk used:  {used_pct:.1f}%")
+#         info(f"Disk free:  {free_gb:.2f} GB")
+#         if free_gb >= 10:
+#             ok("Sufficient disk space (>= 10 GB)")
+#         else:
+#             fail("Low disk space (< 10 GB)")
+#     except Exception as e:
+#         fail(f"Could not check disk space: {e}")
+
+#     # RAM
+#     try:
+#         import psutil
+#         total_gb = psutil.virtual_memory().total / (1024**3)
+#         info(f"RAM total: {total_gb:.2f} GB")
+#         if total_gb >= 8:
+#             ok("Sufficient RAM (>= 8 GB)")
+#         else:
+#             fail("Low RAM (< 8 GB)")
+#     except Exception:
+#         info("psutil not installed; skipping RAM check")
+
+#     # CPU
+#     try:
+#         import multiprocessing
+#         cores = multiprocessing.cpu_count()
+#         info(f"CPU cores: {cores}")
+#         if cores >= 4:
+#             ok("Good CPU count (>= 4 cores)")
+#         else:
+#             info("Performance may be slow on low-core systems")
+#     except Exception as e:
+#         fail(f"Could not check CPU cores: {e}")
+
+#     return True
+
+# # -----------------------------------------------------------------------------
+# # 4) Directory structure
+# # -----------------------------------------------------------------------------
+# def check_directory_structure():
+#     heading("4. DIRECTORY STRUCTURE CHECK")
+#     required_dirs = [
+#         "catchment",
+#         "data",
+#         "temp",
+#         "temp/factors",
+#         "outputs",
+#         "outputs/figures",
+#         "outputs/maps",
+#         "outputs/web_maps",
+#         "outputs/statistics",
+#         "outputs/logs",
+#         "scripts",
+#     ]
+#     all_ok = True
+#     for rel in required_dirs:
+#         p = BASE_DIR / rel
+#         if p.exists():
+#             ok(rel)
+#         else:
+#             info(f"{rel} missing; creating...")
+#             try:
+#                 p.mkdir(parents=True, exist_ok=True)
+#                 ok(f"Created {rel}")
+#             except Exception as e:
+#                 fail(f"Could not create {rel}: {e}")
+#                 all_ok = False
+#     return all_ok
+
+# # -----------------------------------------------------------------------------
+# # 5) Catchment shapefile
+# # -----------------------------------------------------------------------------
+# def check_catchment_shapefile():
+#     heading("5. CATCHMENT SHAPEFILE VALIDATION")
+#     try:
+#         import geopandas as gpd
+#     except Exception:
+#         fail("geopandas not installed")
+#         return False
+
+#     shp_list = list((BASE_DIR / "catchment").glob("*.shp"))
+#     if not shp_list:
+#         fail("No shapefile found in catchment/")
+#         return False
+
+#     shp = shp_list[0]
+#     info(f"Found shapefile: {shp.name}")
+#     try:
+#         gdf = gpd.read_file(shp)
+#         info(f"Features: {len(gdf)}")
+#         info(f"CRS: {gdf.crs}")
+#         if gdf.crs is None:
+#             fail("Shapefile has no CRS")
+#             return False
+#         ok("Shapefile loaded successfully")
+#         return True
+#     except Exception as e:
+#         fail(f"Error reading shapefile: {e}")
+#         return False
+
+# # -----------------------------------------------------------------------------
+# # 6) DEM file
+# # -----------------------------------------------------------------------------
+# def check_dem_file():
+#     heading("6. DEM FILE VALIDATION")
+#     try:
+#         import rasterio
+#         import numpy as np
+#     except Exception:
+#         fail("rasterio/numpy not installed")
+#         return False
+
+#     dem_path = BASE_DIR / "temp" / "dem_srtm_90m.tif"
+#     if not dem_path.exists():
+#         fail("DEM file missing: temp/dem_srtm_90m.tif")
+#         return False
+
+#     info(f"Found DEM: {dem_path}")
+#     try:
+#         with rasterio.open(dem_path) as src:
+#             info(f"Size: {src.width} x {src.height}")
+#             info(f"CRS: {src.crs}")
+#             arr = src.read(1)
+#             valid = arr[arr > 0]
+#             if valid.size > 0:
+#                 info(f"Elevation range: {valid.min()} to {valid.max()} meters")
+#             else:
+#                 info("No positive elevation values found")
+#         ok("DEM validation successful")
+#         return True
+#     except Exception as e:
+#         fail(f"Error reading DEM: {e}")
+#         return False
+
+# # -----------------------------------------------------------------------------
+# # 7) Google Earth Engine
+# # -----------------------------------------------------------------------------
+# def _read_saved_project_id():
+#     # Prefer file in project root written by 00_gee_setup.py
+#     cfg = BASE_DIR / "gee_project_config.txt"
+#     if cfg.exists():
+#         try:
+#             text = cfg.read_text(encoding="utf-8").strip()
+#             # Accept formats: "rusle-477405" or "project_id=rusle-477405"
+#             if "=" in text:
+#                 key, val = text.split("=", 1)
+#                 return val.strip()
+#             return text
+#         except Exception:
+#             return None
+#     # Optional env var
+#     env_val = os.environ.get("GEE_PROJECT_ID")
+#     if env_val:
+#         return env_val.strip()
+#     return None
+
+# def check_google_earth_engine():
+#     heading("7. GOOGLE EARTH ENGINE CHECK")
+#     try:
+#         import ee
+#     except Exception:
+#         fail("earthengine-api not installed")
+#         return False
+
+#     project_id = _read_saved_project_id()
+#     if project_id:
+#         info(f"Using saved GEE project: {project_id}")
+#         try:
+#             ee.Initialize(project=project_id)
+#             ok(f"Google Earth Engine initialized using project '{project_id}'")
+#             return True
+#         except Exception as e:
+#             fail(f"GEE initialization failed with saved project '{project_id}': {e}")
+
+#     # Fallback to default initialization (may work for some auth setups)
+#     try:
+#         info("Attempting fallback: ee.Initialize() without project")
+#         ee.Initialize()
+#         ok("Google Earth Engine initialized without explicit project")
+#         return True
+#     except Exception as e:
+#         fail(f"Google Earth Engine initialization failed: {e}")
+#         info("Run: python scripts/00_gee_setup.py")
+#         return False
+
+# # -----------------------------------------------------------------------------
+# # 8) Config files
+# # -----------------------------------------------------------------------------
+# def check_config_files():
+#     heading("8. CONFIGURATION FILES CHECK")
+#     files = [
+#         "scripts/config.py",
+#         "scripts/color_config.py",
+#         "requirements.txt",
+#         "README.md",
+#     ]
+#     all_ok = True
+#     for f in files:
+#         p = BASE_DIR / f
+#         if p.exists():
+#             ok(f)
+#         else:
+#             fail(f"{f} missing")
+#             all_ok = False
+#     return all_ok
+
+# # -----------------------------------------------------------------------------
+# # 9) Report writer
+# # -----------------------------------------------------------------------------
+# def generate_validation_report(results: dict):
+#     heading("9. GENERATING VALIDATION REPORT")
+#     report = BASE_DIR / "VALIDATION_REPORT.txt"
+#     try:
+#         with open(report, "w", encoding="utf-8") as f:
+#             f.write("RUSLE PROJECT VALIDATION REPORT\n")
+#             f.write("=" * 70 + "\n\n")
+#             for key, val in results.items():
+#                 f.write(f"{key:30s} : {'PASS' if val else 'FAIL'}\n")
+#             f.write("\n" + "=" * 70 + "\n")
+#             f.write(f"Summary: {sum(results.values())}/{len(results)} checks passed\n")
+#         ok(f"Report saved to {report}")
+#         return True
+#     except Exception as e:
+#         fail(f"Could not write report: {e}")
+#         return False
+
+# # -----------------------------------------------------------------------------
+# # Main
+# # -----------------------------------------------------------------------------
+# def main():
+#     print("\nRUSLE PROJECT 2016–2025 ENVIRONMENT VALIDATION\n")
+
+#     results = {
+#         "Python Version": check_python_version(),
+#         "Python Packages": check_required_packages(),
+#         "System Resources": check_system_resources(),
+#         "Directory Structure": check_directory_structure(),
+#         "Catchment Shapefile": check_catchment_shapefile(),
+#         "DEM File": check_dem_file(),
+#         "Google Earth Engine": check_google_earth_engine(),
+#         "Configuration Files": check_config_files(),
+#     }
+
+#     generate_validation_report(results)
+
+#     section("VALIDATION SUMMARY")
+#     for k, v in results.items():
+#         if v:
+#             ok(k)
+#         else:
+#             fail(k)
+
+#     print("\nSummary:", sum(results.values()), "/", len(results), "checks passed")
+#     if all(results.values()):
+#         print("\nSystem is ready for RUSLE analysis.")
+#     else:
+#         print("\nOne or more checks failed. Fix issues and run again.")
+
+#     return 0
+
+# if __name__ == "__main__":
+#     sys.exit(main())
+
 #!/usr/bin/env python3
 """
-RUSLE Project 2016-2025: Environment & Data Validation Script
-==============================================================
+RUSLE Project 2016-2025: Environment & Data Validation (Single-file, ASCII-only)
+-------------------------------------------------------------------------------
 
-Purpose: Comprehensive validation before running RUSLE analysis
-- Checks system environment (Python, packages, disk space)
-- Validates input data (DEM, catchment shapefile)
-- Verifies directory structure
-- Tests critical dependencies (GEE, GDAL, etc.)
-- Creates validation report
+- ASCII-only console output (Windows-friendly)
+- No external local imports
+- Reads GEE project ID from BASE_DIR/gee_project_config.txt if present
+- Falls back to env var GEE_PROJECT_ID, then to ee.Initialize() without project
+- Creates all folders needed by later scripts (00..08)
 
-Run this FIRST when setting up the project on a new machine!
-
-Author: RUSLE Team
-Date: 2025-01-19
+Run:
+    python scripts/01_environment_validation.py
 """
 
 import sys
 import os
-import platform
-import subprocess
 from pathlib import Path
-import importlib
 import warnings
 
-# Suppress warnings for cleaner output
-warnings.filterwarnings('ignore')
+warnings.filterwarnings("ignore")
 
-# Terminal colors for better readability
-class Colors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKCYAN = '\033[96m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
+# ---------------------------------------------------------------------
+# Simple printing helpers (ASCII only)
+# ---------------------------------------------------------------------
+def heading(title: str):
+    print("\n" + "=" * 70)
+    print(title)
+    print("=" * 70 + "\n")
 
-def print_header(text):
-    """Print formatted header"""
-    print(f"\n{Colors.HEADER}{Colors.BOLD}{'='*80}{Colors.ENDC}")
-    print(f"{Colors.HEADER}{Colors.BOLD}{text}{Colors.ENDC}")
-    print(f"{Colors.HEADER}{Colors.BOLD}{'='*80}{Colors.ENDC}\n")
+def section(title: str):
+    print("\n" + "-" * 70)
+    print(title)
+    print("-" * 70 + "\n")
 
-def print_success(text):
-    """Print success message"""
-    print(f"{Colors.OKGREEN}✅ {text}{Colors.ENDC}")
+def ok(msg: str):
+    print(f"OK    {msg}")
 
-def print_warning(text):
-    """Print warning message"""
-    print(f"{Colors.WARNING}⚠️  {text}{Colors.ENDC}")
+def fail(msg: str):
+    print(f"FAIL  {msg}")
 
-def print_error(text):
-    """Print error message"""
-    print(f"{Colors.FAIL}❌ {text}{Colors.ENDC}")
+def warn(msg: str):
+    print(f"WARN  {msg}")
 
-def print_info(text):
-    """Print info message"""
-    print(f"{Colors.OKCYAN}ℹ️  {text}{Colors.ENDC}")
+def info(msg: str):
+    print(f"INFO  {msg}")
 
+BASE_DIR = Path(__file__).parent.parent
+
+# ---------------------------------------------------------------------
+# 1) Python version
+# ---------------------------------------------------------------------
 def check_python_version():
-    """Check if Python version is adequate"""
-    print_header("1. PYTHON VERSION CHECK")
-    
-    version = sys.version_info
-    version_str = f"{version.major}.{version.minor}.{version.micro}"
-    
-    print_info(f"Python version: {version_str}")
-    print_info(f"Python executable: {sys.executable}")
-    
-    if version.major >= 3 and version.minor >= 8:
-        print_success(f"Python {version_str} is compatible (>= 3.8 required)")
+    heading("1. PYTHON VERSION CHECK")
+    v = sys.version_info
+    vstr = f"{v.major}.{v.minor}.{v.micro}"
+    info(f"Python version: {vstr}")
+    info(f"Executable: {sys.executable}")
+    if v.major >= 3 and v.minor >= 8:
+        ok(f"Python {vstr} is compatible (>= 3.8 required)")
         return True
-    else:
-        print_error(f"Python {version_str} is too old! Need Python >= 3.8")
-        return False
+    fail(f"Python {vstr} is too old (>= 3.8 required)")
+    return False
 
+# ---------------------------------------------------------------------
+# 2) Required packages
+# ---------------------------------------------------------------------
 def check_required_packages():
-    """Check if all required Python packages are installed"""
-    print_header("2. PYTHON PACKAGES CHECK")
-    
-    required_packages = {
-        'numpy': 'numpy',
-        'pandas': 'pandas',
-        'geopandas': 'geopandas',
-        'rasterio': 'rasterio',
-        'matplotlib': 'matplotlib',
-        'scipy': 'scipy',
-        'ee': 'earthengine-api',
-        'folium': 'folium',
-        'plotly': 'plotly',
-        'shapely': 'shapely',
-        'pyproj': 'pyproj',
-        'tqdm': 'tqdm',
-        'requests': 'requests'
+    heading("2. PYTHON PACKAGES CHECK")
+    # Aligned with your requirements.txt
+    required_core = {
+        "numpy": "numpy",
+        "pandas": "pandas",
+        "geopandas": "geopandas",
+        "rasterio": "rasterio",
+        "fiona": "fiona",
+        "shapely": "shapely",
+        "pyproj": "pyproj",
+        "scipy": "scipy",
+        "ee": "earthengine-api",
+        "geemap": "geemap",
+        "whitebox": "whitebox",
+        "matplotlib": "matplotlib",
+        "seaborn": "seaborn",
+        "plotly": "plotly",
+        "tqdm": "tqdm",
+        "dotenv": "python-dotenv",
     }
-    
-    all_installed = True
-    installed = []
-    missing = []
-    
-    for module_name, package_name in required_packages.items():
-        try:
-            module = importlib.import_module(module_name)
-            version = getattr(module, '__version__', 'unknown')
-            print_success(f"{package_name:20s} - version {version}")
-            installed.append(package_name)
-        except ImportError:
-            print_error(f"{package_name:20s} - NOT INSTALLED")
-            missing.append(package_name)
-            all_installed = False
-    
-    print(f"\n{Colors.BOLD}Summary:{Colors.ENDC}")
-    print(f"  Installed: {len(installed)}/{len(required_packages)}")
-    
-    if missing:
-        print_error(f"Missing packages: {', '.join(missing)}")
-        print_info("Install missing packages with:")
-        print(f"  pip install {' '.join(missing)}")
-    
-    return all_installed
+    optional = {
+        "ipykernel": "ipykernel",
+        "jupyter": "jupyter",
+    }
 
+    all_ok = True
+    installed = 0
+
+    for mod, pkgname in required_core.items():
+        try:
+            m = __import__(mod)
+            ver = getattr(m, "__version__", "unknown")
+            ok(f"{pkgname:20s} version {ver}")
+            installed += 1
+        except Exception:
+            fail(f"{pkgname:20s} NOT INSTALLED")
+            all_ok = False
+
+    # Optional packages: do not fail the run
+    for mod, pkgname in optional.items():
+        try:
+            m = __import__(mod)
+            ver = getattr(m, "__version__", "unknown")
+            ok(f"{pkgname:20s} version {ver} (optional)")
+        except Exception:
+            info(f"{pkgname:20s} not installed (optional)")
+
+    print("\nSummary:")
+    print(f"Installed {installed} of {len(required_core)} required packages")
+    return all_ok
+
+# ---------------------------------------------------------------------
+# 3) System resources
+# ---------------------------------------------------------------------
 def check_system_resources():
-    """Check system resources (disk space, memory)"""
-    print_header("3. SYSTEM RESOURCES CHECK")
-    
-    # Check disk space
+    heading("3. SYSTEM RESOURCES CHECK")
+    # Disk
     try:
         import shutil
-        total, used, free = shutil.disk_usage("/")
-        
+        total, used, free = shutil.disk_usage(Path.home())
         total_gb = total / (1024**3)
-        used_gb = used / (1024**3)
         free_gb = free / (1024**3)
-        
-        print_info(f"Disk Space:")
-        print(f"  Total: {total_gb:.2f} GB")
-        print(f"  Used:  {used_gb:.2f} GB ({used/total*100:.1f}%)")
-        print(f"  Free:  {free_gb:.2f} GB ({free/total*100:.1f}%)")
-        
+        used_pct = used / total * 100.0
+        info(f"Disk total: {total_gb:.2f} GB")
+        info(f"Disk used:  {used_pct:.1f}%")
+        info(f"Disk free:  {free_gb:.2f} GB")
         if free_gb >= 10:
-            print_success(f"Sufficient disk space ({free_gb:.2f} GB free, need ~10 GB)")
+            ok("Sufficient disk space (>= 10 GB)")
         else:
-            print_warning(f"Low disk space! {free_gb:.2f} GB free, recommend >= 10 GB")
+            warn("Low disk space (< 10 GB) - processing may fail later")
     except Exception as e:
-        print_error(f"Could not check disk space: {e}")
-    
-    # Check RAM
+        fail(f"Could not check disk space: {e}")
+
+    # RAM
     try:
         import psutil
-        ram = psutil.virtual_memory()
-        ram_total_gb = ram.total / (1024**3)
-        ram_available_gb = ram.available / (1024**3)
-        
-        print_info(f"\nRAM:")
-        print(f"  Total:     {ram_total_gb:.2f} GB")
-        print(f"  Available: {ram_available_gb:.2f} GB ({ram.percent:.1f}% used)")
-        
-        if ram_total_gb >= 8:
-            print_success(f"Sufficient RAM ({ram_total_gb:.2f} GB, recommend >= 8 GB)")
+        total_gb = psutil.virtual_memory().total / (1024**3)
+        info(f"RAM total: {total_gb:.2f} GB")
+        if total_gb >= 8:
+            ok("Sufficient RAM (>= 8 GB)")
         else:
-            print_warning(f"Low RAM! {ram_total_gb:.2f} GB, recommend >= 8 GB")
-    except ImportError:
-        print_warning("psutil not installed - cannot check RAM (optional)")
-    except Exception as e:
-        print_error(f"Could not check RAM: {e}")
-    
-    # Check CPU
+            warn("Low RAM (< 8 GB) - processing may be slow or fail")
+    except Exception:
+        info("psutil not installed; skipping RAM check")
+
+    # CPU
     try:
         import multiprocessing
-        cpu_count = multiprocessing.cpu_count()
-        print_info(f"\nCPU Cores: {cpu_count}")
-        if cpu_count >= 4:
-            print_success(f"Good CPU count ({cpu_count} cores)")
+        cores = multiprocessing.cpu_count()
+        info(f"CPU cores: {cores}")
+        if cores >= 4:
+            ok("Good CPU count (>= 4 cores)")
         else:
-            print_info(f"CPU cores: {cpu_count} (more cores = faster processing)")
+            info("Performance may be slow on low-core systems")
     except Exception as e:
-        print_error(f"Could not check CPU: {e}")
-    
+        fail(f"Could not check CPU cores: {e}")
+
     return True
 
+# ---------------------------------------------------------------------
+# 4) Directory structure
+# ---------------------------------------------------------------------
 def check_directory_structure():
-    """Verify project directory structure exists"""
-    print_header("4. DIRECTORY STRUCTURE CHECK")
-    
-    base_dir = Path(__file__).parent.parent
-    
-    required_dirs = {
-        'catchment': 'Catchment shapefile directory',
-        'data': 'Downloaded data storage',
-        'temp': 'Temporary processing files',
-        'temp/factors': 'RUSLE factor rasters',
-        'outputs': 'Analysis results',
-        'outputs/figures': 'Generated figures',
-        'outputs/maps': 'Static maps',
-        'outputs/web_maps': 'Interactive web maps',
-        'outputs/statistics': 'Statistical outputs',
-        'outputs/logs': 'Processing logs',
-        'scripts': 'Python scripts'
-    }
-    
-    all_exist = True
-    
-    for dir_path, description in required_dirs.items():
-        full_path = base_dir / dir_path
-        if full_path.exists():
-            print_success(f"{dir_path:25s} - {description}")
+    heading("4. DIRECTORY STRUCTURE CHECK")
+    required_dirs = [
+        "catchment",
+        "data",
+        "temp",
+        "temp/dem",
+        "temp/aoi",
+        "temp/factors",
+        "outputs",
+        "outputs/figures",
+        "outputs/figures/temporal",
+        "outputs/maps",
+        "outputs/web_maps",
+        "outputs/statistics",
+        "outputs/statistics/temporal",
+        "outputs/logs",
+        "outputs/temporal",
+        "outputs/temporal/arrays",
+        "scripts",
+    ]
+    all_ok = True
+    for rel in required_dirs:
+        p = BASE_DIR / rel
+        if p.exists():
+            ok(rel)
         else:
-            print_warning(f"{dir_path:25s} - MISSING, will create")
+            info(f"{rel} missing; creating...")
             try:
-                full_path.mkdir(parents=True, exist_ok=True)
-                print_info(f"  Created: {full_path}")
+                p.mkdir(parents=True, exist_ok=True)
+                ok(f"Created {rel}")
             except Exception as e:
-                print_error(f"  Failed to create: {e}")
-                all_exist = False
-    
-    return all_exist
+                fail(f"Could not create {rel}: {e}")
+                all_ok = False
+    return all_ok
 
+# ---------------------------------------------------------------------
+# 5) Catchment shapefile
+# ---------------------------------------------------------------------
 def check_catchment_shapefile():
-    """Validate catchment shapefile exists and is valid"""
-    print_header("5. CATCHMENT SHAPEFILE VALIDATION")
-    
-    base_dir = Path(__file__).parent.parent
-    catchment_dir = base_dir / 'catchment'
-    
-    # Look for shapefile
-    shapefiles = list(catchment_dir.glob('*.shp'))
-    
-    if not shapefiles:
-        print_error("No shapefile (.shp) found in catchment/ directory!")
-        print_info("Expected: catchment/Mula_Mutha_Catchment.shp")
-        return False
-    
-    shapefile = shapefiles[0]
-    print_info(f"Found shapefile: {shapefile.name}")
-    
-    # Validate with geopandas
+    heading("5. CATCHMENT SHAPEFILE VALIDATION")
     try:
         import geopandas as gpd
-        
-        gdf = gpd.read_file(shapefile)
-        
-        print_info(f"Shapefile details:")
-        print(f"  Features: {len(gdf)}")
-        print(f"  CRS: {gdf.crs}")
-        print(f"  Bounds: {gdf.total_bounds}")
-        
-        # Calculate area
-        if gdf.crs and gdf.crs.is_geographic:
-            # Reproject to projected CRS for area calculation
-            gdf_proj = gdf.to_crs('EPSG:32643')  # WGS84 UTM 43N for Pune
-            area_km2 = gdf_proj.geometry.area.sum() / 1_000_000
-        else:
-            area_km2 = gdf.geometry.area.sum() / 1_000_000
-        
-        print(f"  Area: {area_km2:,.2f} km²")
-        
-        # Validate geometry
-        if gdf.geometry.is_valid.all():
-            print_success("Shapefile geometry is valid")
-        else:
-            print_warning("Some geometries are invalid, may need repair")
-        
-        # Check if area is reasonable for Mula-Mutha
-        if 5000 < area_km2 < 7000:
-            print_success(f"Area {area_km2:,.2f} km² is within expected range (5,000-7,000 km²)")
-        else:
-            print_warning(f"Area {area_km2:,.2f} km² outside expected range - verify catchment")
-        
-        return True
-        
-    except ImportError:
-        print_error("geopandas not installed - cannot validate shapefile")
-        return False
-    except Exception as e:
-        print_error(f"Error reading shapefile: {e}")
+    except Exception:
+        fail("geopandas not installed")
         return False
 
-def check_dem_file():
-    """Validate DEM file exists and is valid"""
-    print_header("6. DEM FILE VALIDATION")
-    
-    base_dir = Path(__file__).parent.parent
-    dem_file = base_dir / 'temp' / 'dem_srtm_90m.tif'
-    
-    if not dem_file.exists():
-        print_error(f"DEM file not found: {dem_file}")
-        print_info("Expected location: temp/dem_srtm_90m.tif")
-        print_info("Download instructions: See PROJECT_CONTINUATION_GUIDE.md")
+    shp_list = list((BASE_DIR / "catchment").glob("*.shp"))
+    if not shp_list:
+        fail("No shapefile found in catchment/")
         return False
-    
-    print_info(f"Found DEM: {dem_file.name}")
-    print_info(f"Size: {dem_file.stat().st_size / (1024*1024):.2f} MB")
-    
-    # Validate with rasterio
+
+    shp = shp_list[0]
+    info(f"Found shapefile: {shp.name}")
+    try:
+        gdf = gpd.read_file(shp)
+        info(f"Features: {len(gdf)}")
+        info(f"CRS: {gdf.crs}")
+        if gdf.crs is None:
+            fail("Shapefile has no CRS")
+            return False
+        ok("Shapefile loaded successfully")
+        return True
+    except Exception as e:
+        fail(f"Error reading shapefile: {e}")
+        return False
+
+# ---------------------------------------------------------------------
+# 6) DEM file (robust, with fallback)
+# ---------------------------------------------------------------------
+def _pick_dem_path():
+    # Prefer aligned DEM if present, else fallback to srtm_90m
+    dem_aligned = BASE_DIR / "temp" / "dem" / "dem_90m_aligned.tif"
+    dem_legacy  = BASE_DIR / "temp" / "dem_srtm_90m.tif"
+    if dem_aligned.exists():
+        return dem_aligned, "aligned"
+    if dem_legacy.exists():
+        return dem_legacy, "legacy"
+    return None, None
+
+def check_dem_file():
+    heading("6. DEM FILE VALIDATION")
     try:
         import rasterio
         import numpy as np
-        
-        with rasterio.open(dem_file) as src:
-            print_info(f"DEM details:")
-            print(f"  Dimensions: {src.width} × {src.height} pixels")
-            print(f"  Resolution: {abs(src.res[0])*111320:.1f}m × {abs(src.res[1])*111320:.1f}m")
-            print(f"  CRS: {src.crs}")
-            print(f"  Bounds: {src.bounds}")
-            
-            # Read data
-            dem_data = src.read(1)
-            valid_data = dem_data[dem_data > 0]
-            
-            print(f"  Elevation range: {valid_data.min():.0f}m - {valid_data.max():.0f}m")
-            print(f"  Mean elevation: {valid_data.mean():.1f}m")
-            print(f"  Coverage: {len(valid_data)/dem_data.size*100:.1f}%")
-            
-            # Validate
-            if src.crs and 'EPSG:4326' in str(src.crs):
-                print_success("CRS is WGS84 (EPSG:4326) - correct!")
-            else:
-                print_warning(f"CRS is {src.crs}, expected EPSG:4326")
-            
-            if 80 <= abs(src.res[0])*111320 <= 100:
-                print_success("Resolution ~90m - correct!")
-            else:
-                print_warning(f"Resolution {abs(src.res[0])*111320:.0f}m, expected ~90m")
-            
-            if 100 <= valid_data.max() <= 2000:
-                print_success("Elevation range reasonable for Pune region")
-            else:
-                print_warning("Elevation range unusual - verify DEM")
-            
-            return True
-            
-    except ImportError:
-        print_error("rasterio not installed - cannot validate DEM")
+    except Exception:
+        fail("rasterio/numpy not installed")
         return False
+
+    dem_path, dem_kind = _pick_dem_path()
+    if dem_path is None:
+        fail("DEM file missing. Expected one of:\n"
+             "      temp/dem/dem_90m_aligned.tif  (preferred)\n"
+             "      temp/dem_srtm_90m.tif         (fallback)")
+        return False
+
+    info(f"Using DEM: {dem_path} ({dem_kind})")
+    try:
+        with rasterio.open(dem_path) as src:
+            info(f"Size: {src.width} x {src.height}")
+            info(f"CRS:  {src.crs}")
+            info(f"Transform: {src.transform}")
+            nodata = src.nodata
+            if nodata is None:
+                warn("DEM nodata is missing; downstream scripts will treat 'finite()' as valid area.")
+            else:
+                info(f"Nodata: {nodata}")
+
+            # Pixel size sanity (approx 90m at equator is ~0.000833333 deg)
+            px_x = abs(src.transform.a)
+            px_y = abs(src.transform.e)
+            info(f"Pixel size (deg): {px_x:.9f} x {px_y:.9f}")
+            if not (0.0006 <= px_x <= 0.0012):
+                warn("DEM pixel size not ~0.00083 deg (approx 90m). Ensure all factors match this grid.")
+            if str(src.crs).upper() != "EPSG:4326":
+                warn("DEM CRS is not EPSG:4326; reproject/align before analysis.")
+
+            # Lightweight range check
+            arr = src.read(1)
+            finite = arr[np.isfinite(arr)]
+            if finite.size > 0:
+                info(f"Elevation sample range: {np.nanmin(finite):.2f} .. {np.nanmax(finite):.2f} meters")
+            else:
+                warn("DEM has no finite values in band 1.")
+        ok("DEM validation completed")
+        return True
     except Exception as e:
-        print_error(f"Error reading DEM: {e}")
+        fail(f"Error reading DEM: {e}")
         return False
+
+# ---------------------------------------------------------------------
+# 7) GEE init
+# ---------------------------------------------------------------------
+def _read_saved_project_id():
+    cfg = BASE_DIR / "gee_project_config.txt"
+    if cfg.exists():
+        try:
+            text = cfg.read_text(encoding="utf-8").strip()
+            if "=" in text:
+                # Accept legacy "project_id=xxx" but suggest keeping raw ID only
+                key, val = text.split("=", 1)
+                warn("gee_project_config.txt contains 'project_id=' prefix. "
+                     "This is accepted, but please store only the raw ID.")
+                return val.strip()
+            return text
+        except Exception:
+            return None
+    env_val = os.environ.get("GEE_PROJECT_ID")
+    if env_val:
+        return env_val.strip()
+    return None
 
 def check_google_earth_engine():
-    """Check Google Earth Engine authentication"""
-    print_header("7. GOOGLE EARTH ENGINE (GEE) CHECK")
-    
+    heading("7. GOOGLE EARTH ENGINE CHECK")
     try:
         import ee
-        
-        # Try to initialize
+    except Exception:
+        fail("earthengine-api not installed")
+        return False
+
+    project_id = _read_saved_project_id()
+    if project_id:
+        info(f"Using saved GEE project: {project_id}")
         try:
-            ee.Initialize()
-            print_success("Google Earth Engine is initialized and authenticated!")
-            
-            # Test with a simple query
-            try:
-                image = ee.Image('CGIAR/SRTM90_V4')
-                info = image.getInfo()
-                print_success("Successfully tested GEE connection")
-                return True
-            except Exception as e:
-                print_warning(f"GEE authenticated but test query failed: {e}")
-                print_info("This might be a temporary connection issue")
-                return True
-                
+            ee.Initialize(project=project_id)
+            ok(f"Google Earth Engine initialized using project '{project_id}'")
+            return True
         except Exception as e:
-            print_error("Google Earth Engine not authenticated!")
-            print_info("Authenticate with: earthengine authenticate")
-            print_info("Or in Python: import ee; ee.Authenticate()")
-            return False
-            
-    except ImportError:
-        print_error("earthengine-api not installed")
-        print_info("Install with: pip install earthengine-api")
-        return False
+            fail(f"GEE initialization failed with saved project '{project_id}': {e}")
 
-def check_config_files():
-    """Check if configuration files exist"""
-    print_header("8. CONFIGURATION FILES CHECK")
-    
-    base_dir = Path(__file__).parent.parent
-    
-    config_files = {
-        'scripts/config.py': 'Main configuration file',
-        'scripts/color_config.py': 'Color palette configuration',
-        'requirements.txt': 'Python dependencies list',
-        'README.md': 'Project documentation'
-    }
-    
-    all_exist = True
-    
-    for file_path, description in config_files.items():
-        full_path = base_dir / file_path
-        if full_path.exists():
-            size_kb = full_path.stat().st_size / 1024
-            print_success(f"{file_path:30s} - {description} ({size_kb:.1f} KB)")
-        else:
-            print_warning(f"{file_path:30s} - MISSING")
-            all_exist = False
-    
-    return all_exist
-
-def generate_validation_report(results):
-    """Generate a validation report file"""
-    print_header("9. GENERATING VALIDATION REPORT")
-    
-    base_dir = Path(__file__).parent.parent
-    report_file = base_dir / 'VALIDATION_REPORT.txt'
-    
     try:
-        with open(report_file, 'w') as f:
-            f.write("="*80 + "\n")
-            f.write("RUSLE PROJECT 2016-2025: ENVIRONMENT VALIDATION REPORT\n")
-            f.write("="*80 + "\n\n")
-            
-            f.write(f"Date: {Path(__file__).stat().st_mtime}\n")
-            f.write(f"Platform: {platform.system()} {platform.release()}\n")
-            f.write(f"Python: {sys.version}\n")
-            f.write(f"Working Directory: {base_dir}\n\n")
-            
-            f.write("VALIDATION RESULTS:\n")
-            f.write("-" * 80 + "\n")
-            
-            for check_name, passed in results.items():
-                status = "✅ PASS" if passed else "❌ FAIL"
-                f.write(f"{check_name:40s} {status}\n")
-            
-            f.write("\n" + "="*80 + "\n")
-            
-            passed_count = sum(results.values())
-            total_count = len(results)
-            
-            f.write(f"\nOVERALL: {passed_count}/{total_count} checks passed\n")
-            
-            if all(results.values()):
-                f.write("\n✅ SYSTEM IS READY FOR RUSLE ANALYSIS!\n")
-            else:
-                f.write("\n⚠️  SOME CHECKS FAILED - REVIEW REPORT ABOVE\n")
-            
-            f.write("\n" + "="*80 + "\n")
-        
-        print_success(f"Validation report saved to: {report_file}")
+        info("Attempting fallback: ee.Initialize() without project")
+        ee.Initialize()
+        ok("Google Earth Engine initialized without explicit project")
         return True
-        
     except Exception as e:
-        print_error(f"Could not generate report: {e}")
+        fail(f"Google Earth Engine initialization failed: {e}")
+        info("Run: python scripts/00_gee_setup.py")
         return False
 
-def main():
-    """Main validation function"""
-    
-    print(f"\n{Colors.BOLD}{Colors.HEADER}")
-    print("╔" + "="*78 + "╗")
-    print("║" + " "*20 + "RUSLE PROJECT 2016-2025" + " "*35 + "║")
-    print("║" + " "*15 + "Environment & Data Validation" + " "*34 + "║")
-    print("╚" + "="*78 + "╝")
-    print(f"{Colors.ENDC}\n")
-    
-    print_info("This script will validate your environment and data files")
-    print_info("Run this FIRST when setting up the project on a new machine!\n")
-    
-    # Run all validation checks
-    results = {}
-    
-    results['Python Version'] = check_python_version()
-    results['Python Packages'] = check_required_packages()
-    results['System Resources'] = check_system_resources()
-    results['Directory Structure'] = check_directory_structure()
-    results['Catchment Shapefile'] = check_catchment_shapefile()
-    results['DEM File'] = check_dem_file()
-    results['Google Earth Engine'] = check_google_earth_engine()
-    results['Configuration Files'] = check_config_files()
-    
-    # Generate report
-    generate_validation_report(results)
-    
-    # Final summary
-    print_header("VALIDATION SUMMARY")
-    
-    passed_count = sum(results.values())
-    total_count = len(results)
-    
-    print(f"\n{Colors.BOLD}Results:{Colors.ENDC}")
-    for check_name, passed in results.items():
-        if passed:
-            print_success(f"{check_name:30s} PASSED")
+# ---------------------------------------------------------------------
+# 8) Config files
+# ---------------------------------------------------------------------
+def check_config_files():
+    heading("8. CONFIGURATION FILES CHECK")
+    files = [
+        "scripts/config.py",
+        "scripts/color_config.py",
+        "requirements.txt",
+        "README.md",
+    ]
+    all_ok = True
+    for f in files:
+        p = BASE_DIR / f
+        if p.exists():
+            ok(f)
         else:
-            print_error(f"{check_name:30s} FAILED")
-    
-    print(f"\n{Colors.BOLD}Overall: {passed_count}/{total_count} checks passed{Colors.ENDC}\n")
-    
+            fail(f"{f} missing")
+            all_ok = False
+    return all_ok
+
+# ---------------------------------------------------------------------
+# 9) Catchment vs DEM quick spatial sanity
+# ---------------------------------------------------------------------
+def check_aoi_vs_dem_overlap():
+    heading("9. AOI VS DEM OVERLAP CHECK (QUICK)")
+    try:
+        import geopandas as gpd
+        import rasterio
+        from shapely.geometry import box
+    except Exception:
+        info("Dependencies for overlap check missing; skipping.")
+        return True  # Do not fail, this is advisory
+
+    shp_list = list((BASE_DIR / "catchment").glob("*.shp"))
+    if not shp_list:
+        info("No shapefile found; skipping overlap check.")
+        return True
+
+    dem_path, _ = _pick_dem_path()
+    if dem_path is None:
+        info("No DEM found; skipping overlap check.")
+        return True
+
+    try:
+        gdf = gpd.read_file(shp_list[0])
+        aoiminx, aoiminy, aoimax, aoimaxy = gdf.total_bounds
+
+        with rasterio.open(dem_path) as src:
+            dem_bounds = src.bounds
+            dem_box = box(dem_bounds.left, dem_bounds.bottom, dem_bounds.right, dem_bounds.top)
+            aoi_box = box(aoiminx, aoiminy, aoimax, aoimaxy)
+
+            if not dem_box.intersects(aoi_box):
+                warn("AOI and DEM do NOT overlap. Check CRS and extents.")
+            else:
+                ok("AOI and DEM extents overlap.")
+        return True
+    except Exception as e:
+        warn(f"Overlap check skipped due to error: {e}")
+        return True
+
+# ---------------------------------------------------------------------
+# Report writer
+# ---------------------------------------------------------------------
+def generate_validation_report(results: dict):
+    heading("10. GENERATING VALIDATION REPORT")
+    report = BASE_DIR / "VALIDATION_REPORT.txt"
+    try:
+        with open(report, "w", encoding="utf-8") as f:
+            f.write("RUSLE PROJECT VALIDATION REPORT\n")
+            f.write("=" * 70 + "\n\n")
+            for key, val in results.items():
+                f.write(f"{key:30s} : {'PASS' if val else 'FAIL'}\n")
+            f.write("\n" + "=" * 70 + "\n")
+            f.write(f"Summary: {sum(results.values())}/{len(results)} checks passed\n")
+        ok(f"Report saved to {report}")
+        return True
+    except Exception as e:
+        fail(f"Could not write report: {e}")
+        return False
+
+# ---------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------
+def main():
+    print("\nRUSLE PROJECT 2016-2025 ENVIRONMENT VALIDATION\n")
+
+    results = {
+        "Python Version":      check_python_version(),
+        "Python Packages":     check_required_packages(),
+        "System Resources":    check_system_resources(),
+        "Directory Structure": check_directory_structure(),
+        "Catchment Shapefile": check_catchment_shapefile(),
+        "DEM File":            check_dem_file(),
+        "Google Earth Engine": check_google_earth_engine(),
+        "Configuration Files": check_config_files(),
+        "AOI vs DEM Overlap":  check_aoi_vs_dem_overlap(),
+    }
+
+    generate_validation_report(results)
+
+    section("VALIDATION SUMMARY")
+    for k, v in results.items():
+        if v:
+            ok(k)
+        else:
+            fail(k)
+
+    print("\nSummary:", sum(results.values()), "/", len(results), "checks passed")
     if all(results.values()):
-        print(f"{Colors.OKGREEN}{Colors.BOLD}")
-        print("╔" + "="*78 + "╗")
-        print("║" + " "*15 + "✅ SYSTEM IS READY FOR RUSLE ANALYSIS!" + " "*23 + "║")
-        print("╚" + "="*78 + "╝")
-        print(f"{Colors.ENDC}\n")
-        print_info("Next steps:")
-        print("  1. Run: scripts/02_calculate_k_factor.py")
-        print("  2. Run: scripts/03_calculate_ls_factor.py")
-        print("  3. Then proceed with year-by-year analysis (2016-2025)")
-        return 0
+        print("\nSystem is ready for RUSLE analysis.")
     else:
-        print(f"{Colors.FAIL}{Colors.BOLD}")
-        print("╔" + "="*78 + "╗")
-        print("║" + " "*10 + "⚠️  VALIDATION FAILED - FIX ISSUES BEFORE PROCEEDING" + " "*16 + "║")
-        print("╚" + "="*78 + "╝")
-        print(f"{Colors.ENDC}\n")
-        print_info("Fix the failed checks above and run this script again")
-        return 1
+        print("\nOne or more checks failed. Fix issues and run again.")
+
+    return 0
 
 if __name__ == "__main__":
-    exit_code = main()
-    sys.exit(exit_code)
+    sys.exit(main())
