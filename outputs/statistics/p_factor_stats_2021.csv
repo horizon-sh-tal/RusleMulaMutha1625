@@ -1,0 +1,2 @@
+year,min,mean,median,max,std,valid_count,total_pixels,coverage_pct,note
+2021,0.0,0.5748096704483032,0.6000000238418579,1.0,0.2643123269081116,763088,1136655,67.1345307063269,"P clamped to [0,1], AOI+DEM nodata applied"

@@ -1,0 +1,2 @@
+year,pre_ndvi_min,pre_ndvi_max,pre_ndvi_mean,pre_ndvi_median,post_c_min,post_c_max,post_c_mean,post_c_median,post_c_std,count_valid,aoi_pixels,coverage_pct,alpha,beta,ndvi_min_used,ndvi_max_used,note
+2023,-0.9504132270812988,0.8807932138442993,0.3492843508720398,0.3426573574542999,3.821059806341509e-07,1.0,0.3692913353443146,0.35255342721939087,0.23401561379432678,763088,764277,99.84442813273198,2.0,1.0,-0.1,0.9,"NDVI reprojected (bilinear) to DEM grid; AOI mask applied; C clamped to [0,1]; AOI-only stats"

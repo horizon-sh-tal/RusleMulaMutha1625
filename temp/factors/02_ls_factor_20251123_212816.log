@@ -1,0 +1,21 @@
+2025-11-23 21:28:16 - __main__ - INFO - 
+2025-11-23 21:28:16 - __main__ - INFO - ================================================================================
+2025-11-23 21:28:16 - __main__ - INFO - RUSLE LS-FACTOR CALCULATION (STATIC: SRTM DEM)
+2025-11-23 21:28:16 - __main__ - INFO - ================================================================================
+2025-11-23 21:28:16 - __main__ - INFO - Master grid (DEM): CRS=EPSG:4326, shape=(871, 1305), nodata=None
+2025-11-23 21:28:16 - __main__ - INFO - Projected CRS for terrain/hydrology: EPSG:32643
+2025-11-23 21:28:16 - __main__ - INFO - AOI mask detected: aoi_mask.tif (EPSG:4326), will constrain computations.
+2025-11-23 21:28:16 - __main__ - INFO - Projected DEM: shape=(874, 1243), approx cellsize = 90.00 m
+2025-11-23 21:28:16 - __main__ - INFO - Applied AOI mask in metric space.
+2025-11-23 21:28:16 - __main__ - INFO - Filling depressions (Priority-Flood light substitute)...
+2025-11-23 21:28:16 - __main__ - INFO - Computing slope (degrees)...
+2025-11-23 21:28:16 - __main__ - INFO - Computing flow direction (D8)...
+2025-11-23 21:28:20 - __main__ - INFO - Computing flow accumulation (cells)...
+2025-11-23 21:28:22 - __main__ - INFO - Computing LS factor...
+2025-11-23 21:28:22 - __main__ - INFO - Reapplied AOI mask at DEM grid.
+2025-11-23 21:28:22 - __main__ - INFO - LS stats (final, no hard cap in data): min=0.000455  mean=0.145  median=0.041  max=3.808  count=764277
+2025-11-23 21:28:22 - __main__ - INFO - Saved LS raster: C:\Users\Nova\Desktop\RusleMulaMutha1625\temp\factors\ls_factor.tif
+2025-11-23 21:28:23 - __main__ - INFO - Saved LS figure: C:\Users\Nova\Desktop\RusleMulaMutha1625\outputs\figures\ls_factor_map.png
+2025-11-23 21:28:23 - __main__ - INFO - Saved LS stats CSV: C:\Users\Nova\Desktop\RusleMulaMutha1625\outputs\statistics\ls_factor_stats_20251123_212823.csv
+2025-11-23 21:28:23 - __main__ - INFO - LS computation completed.
+2025-11-23 21:28:23 - __main__ - INFO - ================================================================================
