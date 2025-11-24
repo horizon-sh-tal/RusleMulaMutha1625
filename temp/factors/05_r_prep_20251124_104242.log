@@ -1,0 +1,38 @@
+2025-11-24 10:42:42 - __main__ - INFO - 
+2025-11-24 10:42:42 - __main__ - INFO - ================================================================================
+2025-11-24 10:42:42 - __main__ - INFO - PREPARING CHIRPS ANNUAL TOTALS (mm) FOR R-FACTOR
+2025-11-24 10:42:42 - __main__ - INFO - ================================================================================
+2025-11-24 10:42:42 - __main__ - INFO - DEM grid: CRS=EPSG:4326  shape=(871, 1305)  nodata=-9999.0
+2025-11-24 10:42:43 - __main__ - INFO - Processing chirps_total_mm_2016_90m.tif: CRS=EPSG:4326 shape=(870, 1305)
+2025-11-24 10:42:43 - __main__ - INFO - CHIRPS 2016 stats: min=585.58 mean=1074.93 median=1004.95 max=2168.48 std=368.89 n=763088 (coverage 67.13%)
+2025-11-24 10:42:43 - __main__ - INFO - Saved: /home/ubuntuksh/RusleMulaMutha1625/temp/factors/rain_total_2016.tif
+2025-11-24 10:42:43 - __main__ - INFO - Processing chirps_total_mm_2017_90m.tif: CRS=EPSG:4326 shape=(870, 1305)
+2025-11-24 10:42:43 - __main__ - INFO - CHIRPS 2017 stats: min=644.83 mean=1253.03 median=1142.58 max=2584.52 std=426.79 n=763088 (coverage 67.13%)
+2025-11-24 10:42:43 - __main__ - INFO - Saved: /home/ubuntuksh/RusleMulaMutha1625/temp/factors/rain_total_2017.tif
+2025-11-24 10:42:43 - __main__ - INFO - Processing chirps_total_mm_2018_90m.tif: CRS=EPSG:4326 shape=(870, 1305)
+2025-11-24 10:42:43 - __main__ - INFO - CHIRPS 2018 stats: min=381.37 mean=790.14 median=757.66 max=1591.64 std=319.12 n=763088 (coverage 67.13%)
+2025-11-24 10:42:43 - __main__ - INFO - Saved: /home/ubuntuksh/RusleMulaMutha1625/temp/factors/rain_total_2018.tif
+2025-11-24 10:42:43 - __main__ - INFO - Processing chirps_total_mm_2019_90m.tif: CRS=EPSG:4326 shape=(870, 1305)
+2025-11-24 10:42:43 - __main__ - INFO - CHIRPS 2019 stats: min=757.50 mean=1404.36 median=1278.92 max=3047.30 std=528.34 n=763088 (coverage 67.13%)
+2025-11-24 10:42:43 - __main__ - INFO - Saved: /home/ubuntuksh/RusleMulaMutha1625/temp/factors/rain_total_2019.tif
+2025-11-24 10:42:43 - __main__ - INFO - Processing chirps_total_mm_2020_90m.tif: CRS=EPSG:4326 shape=(870, 1305)
+2025-11-24 10:42:43 - __main__ - INFO - CHIRPS 2020 stats: min=846.13 mean=1507.52 median=1447.15 max=2927.57 std=483.27 n=763088 (coverage 67.13%)
+2025-11-24 10:42:43 - __main__ - INFO - Saved: /home/ubuntuksh/RusleMulaMutha1625/temp/factors/rain_total_2020.tif
+2025-11-24 10:42:43 - __main__ - INFO - Processing chirps_total_mm_2021_90m.tif: CRS=EPSG:4326 shape=(870, 1305)
+2025-11-24 10:42:43 - __main__ - INFO - CHIRPS 2021 stats: min=670.89 mean=1093.93 median=1000.45 max=2006.21 std=317.74 n=763088 (coverage 67.13%)
+2025-11-24 10:42:43 - __main__ - INFO - Saved: /home/ubuntuksh/RusleMulaMutha1625/temp/factors/rain_total_2021.tif
+2025-11-24 10:42:43 - __main__ - INFO - Processing chirps_total_mm_2022_90m.tif: CRS=EPSG:4326 shape=(870, 1305)
+2025-11-24 10:42:43 - __main__ - INFO - CHIRPS 2022 stats: min=770.63 mean=1372.63 median=1309.34 max=2761.31 std=455.37 n=763088 (coverage 67.13%)
+2025-11-24 10:42:44 - __main__ - INFO - Saved: /home/ubuntuksh/RusleMulaMutha1625/temp/factors/rain_total_2022.tif
+2025-11-24 10:42:44 - __main__ - INFO - Processing chirps_total_mm_2023_90m.tif: CRS=EPSG:4326 shape=(870, 1305)
+2025-11-24 10:42:44 - __main__ - INFO - CHIRPS 2023 stats: min=521.75 mean=999.16 median=909.45 max=2046.95 std=368.63 n=763088 (coverage 67.13%)
+2025-11-24 10:42:44 - __main__ - INFO - Saved: /home/ubuntuksh/RusleMulaMutha1625/temp/factors/rain_total_2023.tif
+2025-11-24 10:42:44 - __main__ - INFO - Processing chirps_total_mm_2024_90m.tif: CRS=EPSG:4326 shape=(870, 1305)
+2025-11-24 10:42:44 - __main__ - INFO - CHIRPS 2024 stats: min=691.06 mean=1278.27 median=1205.13 max=2563.80 std=451.50 n=763088 (coverage 67.13%)
+2025-11-24 10:42:44 - __main__ - INFO - Saved: /home/ubuntuksh/RusleMulaMutha1625/temp/factors/rain_total_2024.tif
+2025-11-24 10:42:44 - __main__ - INFO - Processing chirps_total_mm_2025_90m.tif: CRS=EPSG:4326 shape=(870, 1305)
+2025-11-24 10:42:44 - __main__ - INFO - CHIRPS 2025 stats: min=807.21 mean=1371.67 median=1263.47 max=2542.54 std=411.10 n=763088 (coverage 67.13%)
+2025-11-24 10:42:44 - __main__ - INFO - Saved: /home/ubuntuksh/RusleMulaMutha1625/temp/factors/rain_total_2025.tif
+2025-11-24 10:42:44 - __main__ - INFO - Saved stats CSV: /home/ubuntuksh/RusleMulaMutha1625/outputs/statistics/r_prep_stats_20251124_104242.csv
+2025-11-24 10:42:44 - __main__ - INFO - R rainfall prep completed.
+2025-11-24 10:42:44 - __main__ - INFO - ================================================================================

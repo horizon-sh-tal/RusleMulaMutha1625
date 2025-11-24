@@ -39,3 +39,8 @@ python-dotenv==1.0.0
 # Jupyter (optional)
 jupyter==1.0.0
 ipykernel==6.27.1
+
+
+
+contextily
+flask

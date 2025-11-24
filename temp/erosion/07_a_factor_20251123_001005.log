@@ -1,8 +1,0 @@
-2025-11-23 00:10:05 - __main__ - INFO - 
-2025-11-23 00:10:05 - __main__ - INFO - ================================================================================
-2025-11-23 00:10:05 - __main__ - INFO - RUSLE A-FACTOR (soil loss) CALCULATION
-2025-11-23 00:10:05 - __main__ - INFO - ================================================================================
-2025-11-23 00:10:05 - __main__ - INFO - DEM grid: CRS=EPSG:4326  shape=(871, 1305)  nodata=-9999.0
-2025-11-23 00:10:07 - __main__ - INFO - Using AOI from shapefile: C:\Users\Nova\Desktop\RusleMulaMutha1625\catchment\Mula_Mutha_Catchment.shp
-2025-11-23 00:10:07 - __main__ - INFO - AOI mask: 764277 / 1136655 pixels inside (67.24%).
-2025-11-23 00:10:07 - __main__ - ERROR - Missing factor raster: C:\Users\Nova\Desktop\RusleMulaMutha1625\temp\factors\r_factor_2016.tif

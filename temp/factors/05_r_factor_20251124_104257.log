@@ -1,0 +1,52 @@
+2025-11-24 10:42:57 - __main__ - INFO - 
+2025-11-24 10:42:57 - __main__ - INFO - ================================================================================
+2025-11-24 10:42:57 - __main__ - INFO - RUSLE R-FACTOR CALCULATION (from CHIRPS annual totals, mm)
+2025-11-24 10:42:57 - __main__ - INFO - ================================================================================
+2025-11-24 10:42:57 - __main__ - INFO - Formula: PowerLaw_R=a*P^b (calibrated to 79+0.363P at basin mean)   R = a * P^b   (a=0.428044, b=1.0)
+2025-11-24 10:42:57 - __main__ - INFO - R units: MJ·mm·ha⁻¹·h⁻¹·yr⁻¹ (relative-scaled)
+2025-11-24 10:42:57 - __main__ - INFO - DEM grid: CRS=EPSG:4326  shape=(871, 1305)  nodata=-9999.0
+2025-11-24 10:42:57 - __main__ - INFO - AOI mask loaded: aoi_mask.tif (preferred raster)
+2025-11-24 10:42:57 - __main__ - INFO - AOI pixels: 764277 / 1136655 (67.24%)
+2025-11-24 10:42:57 - __main__ - INFO - R stats 2016 (AOI-only): R[min=250.655, mean=460.118, med=430.164, max=928.204, std=157.901], P[min=585.6, mean=1074.9, max=2168.5] coverage=99.84%
+2025-11-24 10:42:57 - __main__ - INFO - Saved R raster: /home/ubuntuksh/RusleMulaMutha1625/temp/factors/r_factor_2016.tif
+2025-11-24 10:42:57 - __main__ - INFO - Saved R stats CSV: /home/ubuntuksh/RusleMulaMutha1625/outputs/statistics/r_factor_stats_2016.csv
+2025-11-24 10:42:57 - __main__ - INFO - Saved R figure: /home/ubuntuksh/RusleMulaMutha1625/outputs/figures/r_factor_2016.png
+2025-11-24 10:42:57 - __main__ - INFO - R stats 2017 (AOI-only): R[min=276.014, mean=536.351, med=489.074, max=1106.288, std=182.685], P[min=644.8, mean=1253.0, max=2584.5] coverage=99.84%
+2025-11-24 10:42:57 - __main__ - INFO - Saved R raster: /home/ubuntuksh/RusleMulaMutha1625/temp/factors/r_factor_2017.tif
+2025-11-24 10:42:57 - __main__ - INFO - Saved R stats CSV: /home/ubuntuksh/RusleMulaMutha1625/outputs/statistics/r_factor_stats_2017.csv
+2025-11-24 10:42:58 - __main__ - INFO - Saved R figure: /home/ubuntuksh/RusleMulaMutha1625/outputs/figures/r_factor_2017.png
+2025-11-24 10:42:58 - __main__ - INFO - R stats 2018 (AOI-only): R[min=163.244, mean=338.214, med=324.310, max=681.292, std=136.599], P[min=381.4, mean=790.1, max=1591.6] coverage=99.84%
+2025-11-24 10:42:58 - __main__ - INFO - Saved R raster: /home/ubuntuksh/RusleMulaMutha1625/temp/factors/r_factor_2018.tif
+2025-11-24 10:42:58 - __main__ - INFO - Saved R stats CSV: /home/ubuntuksh/RusleMulaMutha1625/outputs/statistics/r_factor_stats_2018.csv
+2025-11-24 10:42:58 - __main__ - INFO - Saved R figure: /home/ubuntuksh/RusleMulaMutha1625/outputs/figures/r_factor_2018.png
+2025-11-24 10:42:58 - __main__ - INFO - R stats 2019 (AOI-only): R[min=324.242, mean=601.129, med=547.432, max=1304.377, std=226.151], P[min=757.5, mean=1404.4, max=3047.3] coverage=99.84%
+2025-11-24 10:42:58 - __main__ - INFO - Saved R raster: /home/ubuntuksh/RusleMulaMutha1625/temp/factors/r_factor_2019.tif
+2025-11-24 10:42:58 - __main__ - INFO - Saved R stats CSV: /home/ubuntuksh/RusleMulaMutha1625/outputs/statistics/r_factor_stats_2019.csv
+2025-11-24 10:42:59 - __main__ - INFO - Saved R figure: /home/ubuntuksh/RusleMulaMutha1625/outputs/figures/r_factor_2019.png
+2025-11-24 10:42:59 - __main__ - INFO - R stats 2020 (AOI-only): R[min=362.181, mean=645.283, med=619.442, max=1253.130, std=206.859], P[min=846.1, mean=1507.5, max=2927.6] coverage=99.84%
+2025-11-24 10:42:59 - __main__ - INFO - Saved R raster: /home/ubuntuksh/RusleMulaMutha1625/temp/factors/r_factor_2020.tif
+2025-11-24 10:42:59 - __main__ - INFO - Saved R stats CSV: /home/ubuntuksh/RusleMulaMutha1625/outputs/statistics/r_factor_stats_2020.csv
+2025-11-24 10:42:59 - __main__ - INFO - Saved R figure: /home/ubuntuksh/RusleMulaMutha1625/outputs/figures/r_factor_2020.png
+2025-11-24 10:42:59 - __main__ - INFO - R stats 2021 (AOI-only): R[min=287.169, mean=468.250, med=428.236, max=858.747, std=136.007], P[min=670.9, mean=1093.9, max=2006.2] coverage=99.84%
+2025-11-24 10:42:59 - __main__ - INFO - Saved R raster: /home/ubuntuksh/RusleMulaMutha1625/temp/factors/r_factor_2021.tif
+2025-11-24 10:42:59 - __main__ - INFO - Saved R stats CSV: /home/ubuntuksh/RusleMulaMutha1625/outputs/statistics/r_factor_stats_2021.csv
+2025-11-24 10:43:00 - __main__ - INFO - Saved R figure: /home/ubuntuksh/RusleMulaMutha1625/outputs/figures/r_factor_2021.png
+2025-11-24 10:43:00 - __main__ - INFO - R stats 2022 (AOI-only): R[min=329.862, mean=587.546, med=560.455, max=1181.963, std=194.920], P[min=770.6, mean=1372.6, max=2761.3] coverage=99.84%
+2025-11-24 10:43:00 - __main__ - INFO - Saved R raster: /home/ubuntuksh/RusleMulaMutha1625/temp/factors/r_factor_2022.tif
+2025-11-24 10:43:00 - __main__ - INFO - Saved R stats CSV: /home/ubuntuksh/RusleMulaMutha1625/outputs/statistics/r_factor_stats_2022.csv
+2025-11-24 10:43:00 - __main__ - INFO - Saved R figure: /home/ubuntuksh/RusleMulaMutha1625/outputs/figures/r_factor_2022.png
+2025-11-24 10:43:00 - __main__ - INFO - R stats 2023 (AOI-only): R[min=223.332, mean=427.685, med=389.283, max=876.184, std=157.788], P[min=521.8, mean=999.2, max=2046.9] coverage=99.84%
+2025-11-24 10:43:00 - __main__ - INFO - Saved R raster: /home/ubuntuksh/RusleMulaMutha1625/temp/factors/r_factor_2023.tif
+2025-11-24 10:43:00 - __main__ - INFO - Saved R stats CSV: /home/ubuntuksh/RusleMulaMutha1625/outputs/statistics/r_factor_stats_2023.csv
+2025-11-24 10:43:01 - __main__ - INFO - Saved R figure: /home/ubuntuksh/RusleMulaMutha1625/outputs/figures/r_factor_2023.png
+2025-11-24 10:43:01 - __main__ - INFO - R stats 2024 (AOI-only): R[min=295.806, mean=547.156, med=515.848, max=1097.421, std=193.260], P[min=691.1, mean=1278.3, max=2563.8] coverage=99.84%
+2025-11-24 10:43:01 - __main__ - INFO - Saved R raster: /home/ubuntuksh/RusleMulaMutha1625/temp/factors/r_factor_2024.tif
+2025-11-24 10:43:01 - __main__ - INFO - Saved R stats CSV: /home/ubuntuksh/RusleMulaMutha1625/outputs/statistics/r_factor_stats_2024.csv
+2025-11-24 10:43:01 - __main__ - INFO - Saved R figure: /home/ubuntuksh/RusleMulaMutha1625/outputs/figures/r_factor_2024.png
+2025-11-24 10:43:01 - __main__ - INFO - R stats 2025 (AOI-only): R[min=345.522, mean=587.135, med=540.820, max=1088.318, std=175.968], P[min=807.2, mean=1371.7, max=2542.5] coverage=99.84%
+2025-11-24 10:43:01 - __main__ - INFO - Saved R raster: /home/ubuntuksh/RusleMulaMutha1625/temp/factors/r_factor_2025.tif
+2025-11-24 10:43:01 - __main__ - INFO - Saved R stats CSV: /home/ubuntuksh/RusleMulaMutha1625/outputs/statistics/r_factor_stats_2025.csv
+2025-11-24 10:43:02 - __main__ - INFO - Saved R figure: /home/ubuntuksh/RusleMulaMutha1625/outputs/figures/r_factor_2025.png
+2025-11-24 10:43:02 - __main__ - INFO - Saved master R stats CSV: /home/ubuntuksh/RusleMulaMutha1625/outputs/statistics/r_factor_stats_20251124_104302.csv
+2025-11-24 10:43:02 - __main__ - INFO - R-factor computation completed.
+2025-11-24 10:43:02 - __main__ - INFO - ================================================================================
