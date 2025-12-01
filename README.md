@@ -89,6 +89,10 @@ python scripts/08_temporal_analysis.py
 # 10. Create interactive web maps
 python scripts/09_make_overlay_maps.py
 python scripts/09_dashboard.py
+
+# 11. To purge all outputs
+python scripts/purge_project.py
+
 ```
 
 ---
