@@ -1,3 +1,53 @@
+# # --- Core runtime pin to keep geemap happy ---
+# ipython<9
+
+# # Geospatial Core
+# geopandas==0.14.1
+# rasterio==1.3.9
+# fiona==1.9.5
+# shapely==2.0.2
+# pyproj==3.6.1
+
+# # Google Earth Engine
+# earthengine-api
+# geemap==0.29.6
+# # geemap widget deps (stable set)
+# ipywidgets>=8.1,<9
+# ipyleaflet==0.20.0
+# widgetsnbextension~=4.0
+# jupyterlab-widgets~=3.0
+# folium>=0.14
+# branca>=0.6,<0.9
+
+# # Scientific Computing
+# numpy==1.24.3
+# scipy==1.11.4
+# pandas==2.1.4
+
+# # DEM Analysis
+# whitebox==2.3.0
+
+# # Visualization
+# matplotlib==3.8.2
+# seaborn==0.13.0
+# plotly==5.18.0
+
+# # Utilities
+# tqdm==4.66.1
+# python-dotenv==1.0.0
+
+# # Jupyter (optional)
+# jupyter==1.0.0
+# ipykernel==6.27.1
+
+
+
+# contextily
+# flask
+
+
+
+
 # --- Core runtime pin to keep geemap happy ---
 ipython<9
 
@@ -40,7 +90,6 @@ python-dotenv==1.0.0
 jupyter==1.0.0
 ipykernel==6.27.1
 
-
-
-contextily
-flask
+# Web + Tiles (SAFE VERSIONS)
+contextily==1.3.0
+flask==2.3.3

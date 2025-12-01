@@ -1,6 +1,0 @@
-2025-11-24 10:41:21,243 - INFO - === AOI MASK BUILDER ===
-2025-11-24 10:41:21,249 - INFO - DEM grid -> CRS=EPSG:4326, shape=(871,1305)
-2025-11-24 10:41:21,292 - INFO - Loaded shapefile with 1 feature(s); source CRS=EPSG:4326
-2025-11-24 10:41:21,303 - INFO - AOI coverage: 764277/1136655 pixels (67.24%)
-2025-11-24 10:41:21,311 - INFO - Saved AOI mask: /home/ubuntuksh/RusleMulaMutha1625/temp/aoi/aoi_mask.tif
-2025-11-24 10:41:21,311 - INFO - Done.

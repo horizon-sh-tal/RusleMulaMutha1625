@@ -1,2 +1,0 @@
-year,r_min,r_mean,r_median,r_max,r_std,r_count,r_coverage_pct,p_min_mm,p_mean_mm,p_median_mm,p_max_mm,p_std_mm,p_count,p_coverage_pct,formula,a,b,unit_P,unit_R
-2018,163.24411010742188,338.21429443359375,324.30987548828125,681.2920532226562,136.5989227294922,763088,99.84442813273198,381.37225341796875,790.13916015625,757.6554565429688,1591.6402587890625,319.12347412109375,763088,99.84442813273198,PowerLaw_R=a*P^b (calibrated to 79+0.363P at basin mean),0.428044,1.0,mm,MJ·mm·ha⁻¹·h⁻¹·yr⁻¹ (relative-scaled)
